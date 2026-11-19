@@ -1,0 +1,7 @@
+[
+  {"key":"model","repo":"Comfy-Org/TRELLIS.2","file":"diffusion_models/trellis_2_int8_convrot.safetensors","folder":"DiffusionModels","sha256":"d01952ad137213f6a868f86b6b877026276f84af5eec23069217475a0bad3a31"},
+  {"key":"shape_vae","repo":"Comfy-Org/TRELLIS.2","file":"vae/trellis_2_shape_vae_bf16.safetensors","folder":"VAE","sha256":"de0cb4949a76c59ee5c091a995a69bcc8c51d5aeda939f0c641a50d2a72341f4"},
+  {"key":"texture_vae","repo":"Comfy-Org/TRELLIS.2","file":"vae/trellis_2_texture_vae_bf16.safetensors","folder":"VAE","sha256":"714e5ebf094a610e12a8e3b5175c18a62f37f6ea4218acb6073644456b73ab0e"},
+  {"key":"vision","repo":"Comfy-Org/TRELLIS.2","file":"clip_vision/dino_v3_vit_l.safetensors","folder":"ClipVision","sha256":"5cb785e458de7c460579082418af81f5c62380c181599344bdc60898c63468ee"},
+  {"key":"background","repo":"Comfy-Org/BiRefNet","file":"background_removal/birefnet.safetensors","folder":"BackgroundRemoval","sha256":"9ab37426bf4de0567af6b5d21b16151357149139362e6e8992021b8ce356a154"}
+]

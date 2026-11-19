@@ -1,0 +1,4 @@
+[
+  {"key":"model","repo":"QuantStack/Wan2.2-TI2V-5B-GGUF","file":"Wan2.2-TI2V-5B-Q5_K_M.gguf","folder":"DiffusionModels","sha256":"4424633a876511b9be58a41119f7c9d762ea92b3cb74649cdb43cac850e42dba"},
+  {"key":"vae","repo":"Comfy-Org/Wan_2.2_ComfyUI_Repackaged","file":"split_files/vae/wan2.2_vae.safetensors","folder":"VAE","sha256":"e40321bd36b9709991dae2530eb4ac303dd168276980d3e9bc4b6e2b75fed156"}
+]

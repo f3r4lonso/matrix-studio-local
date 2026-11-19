@@ -1,0 +1,11 @@
+[
+  {"key":"checkpoint","repo":"Comfy-Org/stable-diffusion-v1-5-archive","file":"v1-5-pruned-emaonly-fp16.safetensors","folder":"StableDiffusion","sha256":"e9476a13728cd75d8279f6ec8bad753a66a1957ca375a1464dc63b37db6e3916"},
+  {"key":"motion","repo":"conrevo/AnimateDiff-A1111","file":"motion_module/mm_sd15_v3.safetensors","folder":"AnimateDiff","sha256":"a8ca0eadb18c6ad6652bca344a458f31780901a87f765bf95a81ef9c5be55f29"},
+  {"key":"creative_checkpoint","optional":true,"repo":"Lykon/DreamShaper","file":"DreamShaper_8_pruned.safetensors","folder":"StableDiffusion","sha256":"879db523c30d3b9017143d56705015e15a2cb5628762c11d086fed9538abd7fd"},
+  {"key":"motion_v2","optional":true,"repo":"conrevo/AnimateDiff-A1111","file":"motion_module/mm_sd15_v2.safetensors","folder":"AnimateDiff","sha256":"d3976a7dcd11d4f5202d5360c6f1996fc669d6114c530afb3dca4769cc6dd2b2"},
+  {"key":"camera_zoom_out","optional":true,"repo":"guoyww/animatediff","file":"v2_lora_ZoomOut.ckpt","folder":"AnimateDiffMotionLora","sha256":"4172fb2d36410ef638ae0e29d604b66c11ee44b94db9c7cc5ee34d7f865c55d9"},
+  {"key":"camera_pan_left","optional":true,"repo":"guoyww/animatediff","file":"v2_lora_PanLeft.ckpt","folder":"AnimateDiffMotionLora","sha256":"ed79025f8bea018c8925f43b6304a27e462335b6ec5e6f8a222c2726153844b3"},
+  {"key":"realistic_checkpoint","optional":true,"repo":"SG161222/Realistic_Vision_V6.0_B1_noVAE","file":"Realistic_Vision_V6.0_NV_B1_fp16.safetensors","folder":"StableDiffusion","sha256":"c48bfd159cd7a6507b128685e963c398fa72399cefafaf603781df50ce836cc7"},
+  {"key":"realistic_vae","optional":true,"repo":"stabilityai/sd-vae-ft-mse-original","file":"vae-ft-mse-840000-ema-pruned.safetensors","folder":"VAE","sha256":"735e4c3a447a3255760d7f86845f09f937809baa529c17370d83e4c3758f3c75"},
+  {"key":"interpolation","optional":true,"repo":"Comfy-Org/Frame-Interpolation","file":"frame_interpolation/rife_v4.26.safetensors","folder":"FrameInterpolation","sha256":"151874592c877740e5db11522f4514df569eeafb0a0fcb2696f16e9e8d317c94"}
+]

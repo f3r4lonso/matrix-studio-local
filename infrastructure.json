@@ -1,0 +1,22 @@
+{
+  "python": "3.12",
+  "torch_index": "https://download.pytorch.org/whl/cu130",
+  "torch": "2.14.1+cu130",
+  "torchvision": "0.29.1+cu130",
+  "comfyui": {
+    "url": "https://github.com/Comfy-Org/ComfyUI.git",
+    "commit": "989d93d0d968e704c589ce0146bb18c77f6b50cc"
+  },
+  "nodes": [
+    {
+      "name": "ComfyUI-GGUF",
+      "url": "https://github.com/city96/ComfyUI-GGUF.git",
+      "commit": "6ea2651e7df66d7585f6ffee804b20e92fb38b8a"
+    },
+    {
+      "name": "ComfyUI-AnimateDiff-Evolved",
+      "url": "https://github.com/Kosinkadink/ComfyUI-AnimateDiff-Evolved.git",
+      "commit": "9257651221002dcba0a12f9cff37e1944e58fb60"
+    }
+  ]
+}

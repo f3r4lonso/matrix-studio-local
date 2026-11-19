@@ -1,0 +1,8 @@
+[
+  {"key":"high","repo":"QuantStack/Wan2.2-I2V-A14B-GGUF","file":"HighNoise/Wan2.2-I2V-A14B-HighNoise-Q3_K_S.gguf","folder":"DiffusionModels","sha256":"2708962c357537c9f517fa49edd8397f3024057b059c3e8df827c774271e1161"},
+  {"key":"low","repo":"QuantStack/Wan2.2-I2V-A14B-GGUF","file":"LowNoise/Wan2.2-I2V-A14B-LowNoise-Q3_K_S.gguf","folder":"DiffusionModels","sha256":"3352289be6021c783df4716686fb3bb8ec09bf8e1230350145294c78d1ce55b0"},
+  {"key":"text","repo":"city96/umt5-xxl-encoder-gguf","file":"umt5-xxl-encoder-Q3_K_S.gguf","folder":"TextEncoders","sha256":"f64f8d6dc4d8a24276df69d0ccea789aae686f7417950a41e6568c30cb478a5c"},
+  {"key":"vae","repo":"Comfy-Org/Wan_2.2_ComfyUI_Repackaged","file":"split_files/vae/wan_2.1_vae.safetensors","folder":"VAE","sha256":"2fc39d31359a4b0a64f55876d8ff7fa8d780956ae2cb13463b0223e15148976b"},
+  {"key":"lora_high","repo":"Comfy-Org/Wan_2.2_ComfyUI_Repackaged","file":"split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors","folder":"Lora","sha256":"d176c808d6fc461999b68e321efcb7501b20b8c3797523ed0df14f7d1deff11e"},
+  {"key":"lora_low","repo":"Comfy-Org/Wan_2.2_ComfyUI_Repackaged","file":"split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors","folder":"Lora","sha256":"024f21de095bc8fad9809ded3e9e49a2e170dcf27075da8145ba7d60d8aab7f9"}
+]
