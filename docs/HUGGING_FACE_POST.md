@@ -1,5 +1,7 @@
 # Matrix Studio Local: imágenes, vídeo y 3D desde una interfaz local
 
+**[Español](HUGGING_FACE_POST.md) | [English](HUGGING_FACE_POST.en.md)**
+
 He preparado Matrix Studio Local, una interfaz web con conversaciones y galería para conectar varios motores de generación en el propio equipo.
 
 **Código e instalación:** https://github.com/f3r4lonso/matrix-studio-local

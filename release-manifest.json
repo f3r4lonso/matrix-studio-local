@@ -158,9 +158,14 @@
       "sha256": "0c70ad38ab3128cb891f2a876d7a052b6e3a8a801fe64900bfbe8ff892bcb036"
     },
     {
+      "path": "README.en.md",
+      "bytes": 13630,
+      "sha256": "161d02b84a764c710ae20da6854b9ad8475ab85fe606909bc95f7fc1656ae09e"
+    },
+    {
       "path": "README.md",
-      "bytes": 13799,
-      "sha256": "69915593ea3be26b2498086c63c2221e5cf6d0ff1ff12f9178200b56655161eb"
+      "bytes": 13852,
+      "sha256": "ee0b8f58e06695b6ae321c59eba9f39311dd03da33b72437c44a65e7df74f03d"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -178,9 +183,14 @@
       "sha256": "0fa708cc98b0c7dfe98346bd0b8c5eed11528a109d466dbd7088c6479af67e14"
     },
     {
+      "path": "docs/HUGGING_FACE_POST.en.md",
+      "bytes": 2158,
+      "sha256": "eb0b562958d5cfdd17fab036b980d4f5676eba137b4767bd1d391ff0de6949ce"
+    },
+    {
       "path": "docs/HUGGING_FACE_POST.md",
-      "bytes": 1902,
-      "sha256": "70505c3087a87943fa2528c64c1c78c581ea611800fb40d331bd3d844eb23ba1"
+      "bytes": 1977,
+      "sha256": "476e45ef63e3f2471de4284a196a99118670e4bbdcea8b0c77d0eee3cfdd5ae5"
     },
     {
       "path": "docs/MODELS.md",

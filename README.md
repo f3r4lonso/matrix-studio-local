@@ -1,5 +1,7 @@
 # Matrix Studio Local
 
+**[Español](README.md) | [English](README.en.md)**
+
 Una interfaz web local, con conversaciones y galería, para crear **imágenes, vídeos y modelos 3D** desde varios motores. Compatible con una instalación gestionada por Stability Matrix y con una instalación independiente de ComfyUI.
 
 **El código se publica sin pesos, conversaciones, imágenes privadas, registros ni configuraciones del equipo de desarrollo.** Los modelos se descargan por separado desde sus distribuidores y se verifican con SHA256.
