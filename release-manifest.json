@@ -1,5 +1,5 @@
 {
-  "release": "initial-public",
+  "release": "centralized-assets-2026-11-20",
   "hash_basis": "Canonical Git blobs; text is normalized to LF. Working-tree EOL may differ.",
   "files": [
     {
@@ -73,6 +73,11 @@
       "sha256": "8805abcf8db16b20724882829d47c539e4c477fb80363530378c58af576e7453"
     },
     {
+      "path": "MatrixStudio/image_models.json",
+      "bytes": 17643,
+      "sha256": "2e4c5ae2efad25a9cafb92479e0afab2fa5390f561a1478ae568eb627833b3bc"
+    },
+    {
       "path": "MatrixStudio/index.html",
       "bytes": 26331,
       "sha256": "3e85082a51ee99378883eb0cc6a206d7d9e7b186b85b6ba9cb6aaaca9fdc26bf"
@@ -103,14 +108,24 @@
       "sha256": "8bf0fac523689dd0239edf1b3fdca7cc30db244c5044227c286e06c911dd3afc"
     },
     {
+      "path": "MatrixStudio/runtime_paths.py",
+      "bytes": 1129,
+      "sha256": "7dc82fc259219e5ca99e088b5add9ff726d6f85261940bc55edcead330752e66"
+    },
+    {
       "path": "MatrixStudio/server.py",
-      "bytes": 57198,
-      "sha256": "f3a794132ea0b34f8a944839117bd68e7f17b82c8b24b6d2a287c98cad01e4e2"
+      "bytes": 57478,
+      "sha256": "6f3fa7b33dc7e7fb23f59bc563d37ebb281bff86e8c3594d18df240161a68ade"
+    },
+    {
+      "path": "MatrixStudio/tests/test_runtime_paths.py",
+      "bytes": 1553,
+      "sha256": "d393b4ba4f63c8f0278ede6f692c70a690c038d37b48fa5e64f551ee3b56175d"
     },
     {
       "path": "MatrixStudio/tests/test_server.py",
-      "bytes": 36696,
-      "sha256": "7ffe02d886687613fcdd98c167d07e091bcdb65c66cea092d7df7e0a8d35ca2b"
+      "bytes": 36857,
+      "sha256": "df6660ec37c954dc90131102d852f6abde3da0a8816a0e651046db480b72c44e"
     },
     {
       "path": "MatrixStudio/trellis_models.json",
@@ -139,13 +154,13 @@
     },
     {
       "path": "QwenImageLocal/README.md",
-      "bytes": 1463,
-      "sha256": "1ce10649361fe9335c01f7841e814ac76e7151a323162ec27404d54a3ac988d4"
+      "bytes": 1734,
+      "sha256": "26a9e645c52954db527c7c448555485a270ede13a48c390620aaf15b1e855aae"
     },
     {
       "path": "QwenImageLocal/generar.ps1",
-      "bytes": 2295,
-      "sha256": "9cb8713b8422f70f34f561b16e2575c02a1a045f33b1bf1ca34ee5e7f5b50378"
+      "bytes": 2038,
+      "sha256": "17c18a966d7dd4f9add5372ae021456157582be1b8dcb40b45893a826851adcd"
     },
     {
       "path": "QwenImageLocal/iniciar.ps1",
@@ -154,23 +169,33 @@
     },
     {
       "path": "QwenImageLocal/interfaz.ps1",
-      "bytes": 1964,
-      "sha256": "0c70ad38ab3128cb891f2a876d7a052b6e3a8a801fe64900bfbe8ff892bcb036"
+      "bytes": 1713,
+      "sha256": "2521987f1b740de98751ff43067323f9de964814891f6fd913a03451ccca82de"
+    },
+    {
+      "path": "QwenImageLocal/paths.ps1",
+      "bytes": 1887,
+      "sha256": "0353ea2c2f037558e6c84fa3d6c9d699a368033ff85c44530f49354dce067928"
     },
     {
       "path": "README.en.md",
-      "bytes": 13630,
-      "sha256": "161d02b84a764c710ae20da6854b9ad8475ab85fe606909bc95f7fc1656ae09e"
+      "bytes": 14236,
+      "sha256": "4e4e298627b9d611aaf4521c96322f0aa675f574fc8925dcc361a3c2da955b37"
     },
     {
       "path": "README.md",
-      "bytes": 13852,
-      "sha256": "ee0b8f58e06695b6ae321c59eba9f39311dd03da33b72437c44a65e7df74f03d"
+      "bytes": 14439,
+      "sha256": "bb7f9b9f67cc559b4016f1a0a701e0be2922654ca106ea47de26479240248193"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
       "bytes": 1750,
       "sha256": "a1ff2929f034879d9215af04d6bb79afa909487939a834a2c9120996b27072c3"
+    },
+    {
+      "path": "config/runtime-paths.example.json",
+      "bytes": 404,
+      "sha256": "7eeca999cac96a58f1040e0d25c168d257f895992b230404a4047796d9f4119f"
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -184,18 +209,28 @@
     },
     {
       "path": "docs/HUGGING_FACE_POST.en.md",
-      "bytes": 2158,
-      "sha256": "eb0b562958d5cfdd17fab036b980d4f5676eba137b4767bd1d391ff0de6949ce"
+      "bytes": 2971,
+      "sha256": "3e3784993bd334bb21682c2eec0f10c57538a4dc68943eaab1fd683fc8e0a881"
     },
     {
       "path": "docs/HUGGING_FACE_POST.md",
-      "bytes": 1977,
-      "sha256": "476e45ef63e3f2471de4284a196a99118670e4bbdcea8b0c77d0eee3cfdd5ae5"
+      "bytes": 2764,
+      "sha256": "dcc17f44099a39df2a58ca6d299e5bf15ac0e7fddde6fab526e085a61077c03d"
+    },
+    {
+      "path": "docs/IMAGE_MODELS.md",
+      "bytes": 4286,
+      "sha256": "bf3296e7f3e847a99d8ae772d9d260e98ca65950eae749d2d62503f88c2b5785"
+    },
+    {
+      "path": "docs/LOCAL_ASSETS.md",
+      "bytes": 2899,
+      "sha256": "d6ca0207b21f42711c23600c62f50d31e45f761512fc8fd62237b828dc817a95"
     },
     {
       "path": "docs/MODELS.md",
-      "bytes": 5572,
-      "sha256": "9038364261dd6ce6107ea9d94241e10023bfedfb08764aa894c47270e9f70ab3"
+      "bytes": 6042,
+      "sha256": "42c8e8d08da0c54c90d6191bb486f928c941a69956e51b4fcdc4ce73fa745151"
     },
     {
       "path": "docs/PRIVACY.md",
@@ -204,13 +239,18 @@
     },
     {
       "path": "docs/PUBLICATION_AUDIT.md",
-      "bytes": 1973,
-      "sha256": "8d7d9533ca99e0caf340748210c8b667f1aa4b612193606f63a35d8d8271cfa8"
+      "bytes": 3048,
+      "sha256": "683a40c0fbea5072403410c27901fda7f5e479d020947e293df79dd895d0b23c"
     },
     {
       "path": "docs/TROUBLESHOOTING.md",
       "bytes": 2402,
       "sha256": "f6105b2a5ed1cade8b90ba92ff0da6eb26a60b3bdb6dd4ae0b7b77945526ec8c"
+    },
+    {
+      "path": "docs/VIDEO_TUNING.md",
+      "bytes": 3545,
+      "sha256": "d99542c4b70f87596586d06dee107b37d76d93a64c01a2056f65c6172fdddc63"
     },
     {
       "path": "docs/interface.jpg",
@@ -249,18 +289,23 @@
     },
     {
       "path": "scripts/configure_models.py",
-      "bytes": 1042,
-      "sha256": "fd7267df42cbde4a9c8320af9f687829e11c1b494818c56652f1898ff1095fd6"
+      "bytes": 1683,
+      "sha256": "4323fbd4ef467f6c803f6aed0ec419b3399525ecd84d451a380475c41d9a9b1f"
+    },
+    {
+      "path": "scripts/inventory_assets.py",
+      "bytes": 3834,
+      "sha256": "3cb01d1f2ef9289e1ccc8444c3f570fed0cbb265bd9b2cbec142c125e409193a"
     },
     {
       "path": "scripts/setup-local.ps1",
-      "bytes": 3813,
-      "sha256": "407a1e172cc3e3e4bd8f40ce6ab1d858c571c3c2b5d79b753f68692c2f1045b8"
+      "bytes": 3884,
+      "sha256": "0b48e8b070ae90e2045d7534617b0a6b688f58deff80858e6122c8edd2893331"
     },
     {
       "path": "scripts/start-local.ps1",
-      "bytes": 728,
-      "sha256": "84994f4b77ed13b9ac7b262e7472a5da4a2a39be184d948ccc5a47aded72a07d"
+      "bytes": 773,
+      "sha256": "28403ecb1bcec8c440cde6ee8c7260716ca79675540e61942b889fc2e987d098"
     }
   ]
 }

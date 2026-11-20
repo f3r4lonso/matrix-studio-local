@@ -5,11 +5,12 @@ param(
     [int]$Seed = 42
 )
 $ErrorActionPreference = 'Stop'
-$projectRoot = Split-Path -Parent $PSScriptRoot
-$model = if ($env:MATRIX_STUDIO_QWEN_MODEL) { $env:MATRIX_STUDIO_QWEN_MODEL } else { Join-Path $projectRoot 'Data/Models/Qwen/model.gguf' }
-$encoder = if ($env:MATRIX_STUDIO_QWEN_ENCODER) { $env:MATRIX_STUDIO_QWEN_ENCODER } else { Join-Path $projectRoot 'Data/Models/Qwen/encoder.gguf' }
-$vae = if ($env:MATRIX_STUDIO_QWEN_VAE) { $env:MATRIX_STUDIO_QWEN_VAE } else { Join-Path $projectRoot 'Data/Models/Qwen/vae.safetensors' }
-$cuda = if ($env:MATRIX_STUDIO_CUDA_DIR) { $env:MATRIX_STUDIO_CUDA_DIR } else { Join-Path $PSScriptRoot 'engine' }
+. (Join-Path $PSScriptRoot 'paths.ps1')
+$runtimePaths = Get-MatrixRuntimePaths
+$model = $runtimePaths.qwen_model
+$encoder = $runtimePaths.qwen_encoder
+$vae = $runtimePaths.qwen_vae
+$cuda = $runtimePaths.cuda_runtime
 foreach ($file in @($model, $encoder, $vae, "$cuda\cudart64_12.dll")) {
     if (!(Test-Path -LiteralPath $file)) { throw "No se encuentra: $file" }
 }
@@ -19,6 +20,7 @@ New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss-fff'
 $output = Join-Path $outputDir "$stamp.png"
 $log = Join-Path $outputDir "$stamp.log"
+$engineExecutable = if ($env:MATRIX_STUDIO_QWEN_CLI) { $env:MATRIX_STUDIO_QWEN_CLI } else { Join-Path $runtimePaths.sd_cpp_engine 'sd-cli.exe' }
 $savedPath = $env:PATH
 try {
     $env:PATH = "$cuda;$savedPath"
@@ -31,7 +33,7 @@ try {
         '--backend', 'cuda0', '--max-vram', '6', '--mmap',
         '--flash-attn', 'on', '--vae-tiling', '--output', $output
     )
-    & (Join-Path $PSScriptRoot 'engine\sd-cli.exe') @sdArgs 2>&1 | Tee-Object -FilePath $log
+    & $engineExecutable @sdArgs 2>&1 | Tee-Object -FilePath $log
     if ($LASTEXITCODE -ne 0) { throw "La generacion ha fallado (codigo $LASTEXITCODE). Registro: $log" }
     if (!(Test-Path -LiteralPath $output)) { throw "No se ha creado la imagen. Registro: $log" }
     Write-Host "Imagen guardada: $output"

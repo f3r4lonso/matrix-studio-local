@@ -1,5 +1,7 @@
 # Descargas de modelos y LoRA
 
+El catálogo preparatorio de checkpoints de imagen está en [`image_models.json`](../MatrixStudio/image_models.json). Consulta [su formato, versiones y alcance](IMAGE_MODELS.md). Todavía no está conectado al instalador ni al formulario de generación; sus pesos no se suman a los conjuntos instalables descritos abajo.
+
 Los pesos no se redistribuyen en este repositorio. Cada manifiesto conserva repositorio de origen, archivo, destino y SHA256. El instalador verifica el hash completo y renombra el archivo parcial solo al terminar. Los tamaños son los de los archivos verificados en el equipo de prueba; no incluyen Python, PyTorch, cachés ni resultados. Consulta la licencia y condiciones de cada ficha antes de descargar.
 
 ## Wan 5B
@@ -66,3 +68,5 @@ Los cuatro conjuntos completos contienen **22 archivos distintos**, aproximadame
 ## Qwen opcional
 
 Los lanzadores de Qwen no tienen descarga automática porque deben emparejarse un ejecutable compatible, su runtime CUDA y tres pesos del mismo conjunto. Consulta [QwenImageLocal](../QwenImageLocal/README.md). No se requiere LM Studio ni se incluyen sus bibliotecas. Automatic1111/Forge utiliza sus propios checkpoints y se configura por API local.
+
+Motores y pesos: [organización, compatibilidad e inventario](LOCAL_ASSETS.md). Vídeo: [parámetros de las pruebas de sparring](VIDEO_TUNING.md).

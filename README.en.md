@@ -65,12 +65,12 @@ cd matrix-studio-local
 .\scripts\setup-local.ps1 -Python python
 ```
 
-The installer creates `Data/Packages/ComfyUI/venv`, pins engine commits, installs dependencies, and generates `Data/matrix-studio-model-paths.yaml` with paths for **your** installation. It does not change execution policies, firewall settings, or system environment variables. If PowerShell blocks scripts, review the code and your terminal settings; the installer does not change the policy automatically.
+The installer creates `Data/Engines/ComfyUI/venv`, pins engine commits, installs dependencies, and generates `Data/matrix-studio-model-paths.yaml` with paths for **your** installation. It does not change execution policies, firewall settings, or system environment variables. If PowerShell blocks scripts, review the code and your terminal settings; the installer does not change the policy automatically.
 
 Set the path to the Python executable created above:
 
 ```powershell
-$py = '.\Data\Packages\ComfyUI\venv\Scripts\python.exe'
+$py = '.\Data\Engines\ComfyUI\venv\Scripts\python.exe'
 ```
 
 Download only your chosen modules:
@@ -100,7 +100,7 @@ You can also use `Abrir Matrix Studio.cmd`. Open **http://127.0.0.1:7880/** and 
 To start ComfyUI manually, open another terminal at the repository root:
 
 ```powershell
-& $py Data/Packages/ComfyUI/main.py `
+& $py Data/Engines/ComfyUI/main.py `
   --listen 127.0.0.1 --port 8188 --use-pytorch-cross-attention `
   --extra-model-paths-config Data/matrix-studio-model-paths.yaml
 ```
@@ -133,7 +133,7 @@ With ComfyUI running:
 & $py -W ignore -m unittest discover -s MatrixStudio/tests -q
 ```
 
-The diagnostic checks versions, CUDA, weight files, and node availability; it does not certify visual quality. The 21 application tests cover API limits, simulated engine integration, model and VAE paths, batches, deletion/Undo, montage assembly using actual MP4 timing, and resuming jobs. They do not run neural models.
+The diagnostic checks versions, CUDA, weight files, and node availability; it does not certify visual quality. The 24 application tests cover API limits, simulated engine integration, model and VAE paths, batches, deletion/Undo, montage assembly using actual MP4 timing, and resuming jobs. They do not run neural models.
 
 ## Usage and settings
 
@@ -194,3 +194,7 @@ Databases, outputs, references, private experiments, old screenshots, executable
 Actual video tests improved some motion and color aspects but still showed merged bodies and unnatural contact in fighting scenes. This project does not guarantee reliable photorealistic video, pose control, perfect identity preservation, or cinematic quality. Short AI montages of 6 and 10 seconds were generated; 120-second output was checked in the assembler using synthetic scenes, **not with a complete two-minute AI render**. Windows/NVIDIA is the validated platform; Linux, macOS, AMD, and other GPUs remain unverified.
 
 Original code is licensed under [MIT](LICENSE). External models and components retain their own licenses.
+
+## Asset organization and model catalog
+
+Fresh installations use `Data/Engines` for engines and `Data/Models` for checkpoints, encoders, VAEs and LoRAs. Runtime paths are configurable; existing installations remain usable. See [asset layout and inventory](docs/LOCAL_ASSETS.md). The [image catalog](docs/IMAGE_MODELS.md) documents eight checkpoints with versions, sources, SHA256, VAE information and suggested settings; these entries are not all installed or tested. [Five-second sparring trials](docs/VIDEO_TUNING.md) record settings and remaining motion artifacts. These supporting guides are in Spanish.

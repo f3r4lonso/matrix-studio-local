@@ -7,7 +7,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $config = Get-Content -LiteralPath (Join-Path $projectRoot 'infrastructure.json') -Raw | ConvertFrom-Json
-if (!$ComfyDir) { $ComfyDir = Join-Path $projectRoot 'Data/Packages/ComfyUI' }
+. (Join-Path $projectRoot 'QwenImageLocal/paths.ps1')
+if (!$ComfyDir) { $ComfyDir = (Get-MatrixRuntimePaths).comfy_engine }
 if ($PlanOnly) {
     Write-Output ('Python required: ' + $config.python)
     Write-Output ('ComfyUI commit: ' + $config.comfyui.commit)
@@ -54,7 +55,7 @@ foreach ($node in $config.nodes) {
     if (Test-Path -LiteralPath $requirements) { Invoke-Checked $venvPython @('-m', 'pip', 'install', '-r', $requirements, '-c', $constraints) }
 }
 Invoke-Checked $venvPython @('-m', 'pip', 'install', '-r', (Join-Path $projectRoot 'requirements.txt'), '-r', (Join-Path $projectRoot 'MatrixStudio/requirements-video.txt'), '-c', $constraints)
-Invoke-Checked $venvPython @((Join-Path $PSScriptRoot 'configure_models.py'))
+Invoke-Checked $venvPython @((Join-Path $PSScriptRoot 'configure_models.py'), '--comfy-dir', $ComfyDir)
 Invoke-Checked $venvPython @('-c', 'import torch; print("CUDA available:", torch.cuda.is_available()); print("GPU:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "none")')
 Write-Output 'Infrastructure installed. Model weights are separate; see README.md.'
 if ($UseExistingComfy) { Write-Output 'Existing installation reused; its compatibility must be checked.' }

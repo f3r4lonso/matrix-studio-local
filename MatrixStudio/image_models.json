@@ -1,0 +1,523 @@
+{
+  "schema_version": 1,
+  "metadata_checked_on": "2026-11-20",
+  "models": [
+    {
+      "key": "pony_v6_xl",
+      "name": "Pony Diffusion V6 XL",
+      "version": "V6 (start with this one)",
+      "architecture": "sdxl",
+      "base_model": "Pony",
+      "lora_family": "pony",
+      "source": {
+        "provider": "civitai",
+        "creator": "PurpleSmartAI",
+        "model_id": 257749,
+        "version_id": 290640,
+        "file_id": 228616,
+        "url": "https://civitai.com/models/257749?modelVersionId=290640",
+        "metadata_url": "https://civitai.com/api/v1/model-versions/290640",
+        "download_url": "https://civitai.com/api/download/models/290640?fileId=228616"
+      },
+      "file": "v6.safetensors",
+      "folder": "StableDiffusion",
+      "format": "safetensors",
+      "precision": "fp16",
+      "size_bytes": 6938041050,
+      "sha256": "67ab2fd8ec439a89b3fedb15cc65f54336af163c7eb5e4f2acc98f090a29b0b3",
+      "vae": {
+        "mode": "checkpoint",
+        "architecture": "sdxl",
+        "external_key": null
+      },
+      "recommended": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 25,
+        "cfg": 7,
+        "sampler": "euler_ancestral",
+        "scheduler": "normal",
+        "clip_skip": 2,
+        "prompt_prefix": "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up",
+        "negative": ""
+      },
+      "recommendation_sources": [
+        "https://civitai.com/models/257749?modelVersionId=290640"
+      ],
+      "project_default_fields": [
+        "cfg",
+        "scheduler"
+      ],
+      "notes": [
+        "Pony es un fine-tune SDXL; priorizar LoRAs entrenadas para Pony.",
+        "clip_skip usa la convencion positiva de A1111; ComfyUI SDXL ya usa la penultima capa por defecto. No aplicar un salto adicional automaticamente."
+      ],
+      "verification": {
+        "metadata_checked_on": "2026-11-20",
+        "sha256_source": "provider_metadata",
+        "weights_verified_locally": false,
+        "generation_tested": false
+      }
+    },
+    {
+      "key": "juggernaut_xl_v9",
+      "name": "Juggernaut XL",
+      "version": "V9 + RunDiffusionPhoto 2",
+      "architecture": "sdxl",
+      "base_model": "SDXL 1.0",
+      "lora_family": "sdxl",
+      "source": {
+        "provider": "huggingface",
+        "url": "https://huggingface.co/RunDiffusion/Juggernaut-XL-v9",
+        "metadata_url": "https://huggingface.co/api/models/RunDiffusion/Juggernaut-XL-v9?blobs=true",
+        "download_url": "https://huggingface.co/RunDiffusion/Juggernaut-XL-v9/resolve/cf419233522daa0b9ea36c3aff98fa2cab1fb0fb/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",
+        "mirrors": [
+          {
+            "provider": "civitai",
+            "creator": "KandooAI",
+            "model_id": 133005,
+            "version_id": 348913,
+            "file_id": 277777,
+            "url": "https://civitai.com/models/133005?modelVersionId=348913",
+            "metadata_url": "https://civitai.com/api/v1/model-versions/348913",
+            "download_url": "https://civitai.com/api/download/models/348913?fileId=277777",
+            "file": "JuggernautXL_RunDiffusionPhoto2_V9_Final.safetensors"
+          }
+        ],
+        "repo": "RunDiffusion/Juggernaut-XL-v9",
+        "revision": "cf419233522daa0b9ea36c3aff98fa2cab1fb0fb"
+      },
+      "file": "Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",
+      "folder": "StableDiffusion",
+      "format": "safetensors",
+      "precision": "fp16",
+      "size_bytes": 7105348188,
+      "sha256": "c9e3e68f89b8e38689e1097d4be4573cf308de4e3fd044c64ca697bdb4aa8bca",
+      "vae": {
+        "mode": "checkpoint",
+        "architecture": "sdxl",
+        "external_key": null
+      },
+      "recommended": {
+        "width": 832,
+        "height": 1216,
+        "steps": 35,
+        "cfg": 5,
+        "sampler": "dpmpp_2m",
+        "scheduler": "karras",
+        "clip_skip": null,
+        "prompt_prefix": "",
+        "negative": ""
+      },
+      "recommendation_sources": [
+        "https://huggingface.co/RunDiffusion/Juggernaut-XL-v9/blob/cf419233522daa0b9ea36c3aff98fa2cab1fb0fb/README.md"
+      ],
+      "project_default_fields": [
+        "clip_skip"
+      ],
+      "notes": [
+        "VAE incorporado. Perfil para v9, no para variantes Lightning, Hyper ni otras versiones."
+      ],
+      "verification": {
+        "metadata_checked_on": "2026-11-20",
+        "sha256_source": "provider_metadata",
+        "weights_verified_locally": false,
+        "generation_tested": false
+      }
+    },
+    {
+      "key": "dreamshaper_xl_alpha2",
+      "name": "DreamShaper XL",
+      "version": "alpha2 (xl1.0)",
+      "architecture": "sdxl",
+      "base_model": "SDXL 1.0",
+      "lora_family": "sdxl",
+      "source": {
+        "provider": "civitai",
+        "creator": "Lykon",
+        "model_id": 112902,
+        "version_id": 126688,
+        "file_id": 91562,
+        "url": "https://civitai.com/models/112902?modelVersionId=126688",
+        "metadata_url": "https://civitai.com/api/v1/model-versions/126688",
+        "download_url": "https://civitai.com/api/download/models/126688?fileId=91562"
+      },
+      "file": "DreamShaperXL1.0Alpha2_fixedVae_half_00001_.safetensors",
+      "folder": "StableDiffusion",
+      "format": "safetensors",
+      "precision": "fp16",
+      "size_bytes": 6938068556,
+      "sha256": "0f1b80cfe81b9c3bde7fdcbf6898897b2811b27be1df684583c3d85cbc9b1fa4",
+      "vae": {
+        "mode": "checkpoint",
+        "architecture": "sdxl",
+        "external_key": null
+      },
+      "recommended": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 25,
+        "cfg": 7,
+        "sampler": "dpmpp_2m",
+        "scheduler": "karras",
+        "clip_skip": null,
+        "prompt_prefix": "",
+        "negative": ""
+      },
+      "recommendation_sources": [
+        "https://civitai.com/models/112902?modelVersionId=126688"
+      ],
+      "project_default_fields": [
+        "width",
+        "height",
+        "steps",
+        "cfg",
+        "sampler",
+        "scheduler",
+        "clip_skip",
+        "prompt_prefix",
+        "negative"
+      ],
+      "notes": [
+        "Version SDXL 1.0 convencional; el autor recomienda actualmente Turbo o Lightning.",
+        "No confundir con DreamShaper 8 de SD 1.5."
+      ],
+      "verification": {
+        "metadata_checked_on": "2026-11-20",
+        "sha256_source": "provider_metadata",
+        "weights_verified_locally": false,
+        "generation_tested": false
+      }
+    },
+    {
+      "key": "dreamshaper_xl_lightning",
+      "name": "DreamShaper XL",
+      "version": "Lightning DPM++ SDE",
+      "architecture": "sdxl",
+      "base_model": "SDXL Lightning",
+      "lora_family": "sdxl",
+      "source": {
+        "provider": "civitai",
+        "creator": "Lykon",
+        "model_id": 112902,
+        "version_id": 354657,
+        "file_id": 282807,
+        "url": "https://civitai.com/models/112902?modelVersionId=354657",
+        "metadata_url": "https://civitai.com/api/v1/model-versions/354657",
+        "download_url": "https://civitai.com/api/download/models/354657?fileId=282807"
+      },
+      "file": "DreamShaperXL_Turbo-Lightning.safetensors",
+      "folder": "StableDiffusion",
+      "format": "safetensors",
+      "precision": "fp16",
+      "size_bytes": 6939220250,
+      "sha256": "fdbe56354b8f876b736f24d3ad867ecd4140c019f57642ec8ddd878088d44f64",
+      "vae": {
+        "mode": "checkpoint",
+        "architecture": "sdxl",
+        "external_key": null
+      },
+      "recommended": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 4,
+        "cfg": 2,
+        "sampler": "dpmpp_sde",
+        "scheduler": "karras",
+        "clip_skip": null,
+        "prompt_prefix": "",
+        "negative": ""
+      },
+      "recommendation_sources": [
+        "https://civitai.com/models/112902?modelVersionId=354657"
+      ],
+      "project_default_fields": [
+        "clip_skip",
+        "prompt_prefix",
+        "negative"
+      ],
+      "notes": [
+        "Variante Lightning: DPM++ SDE, no DPM++ 2M. No requiere refiner.",
+        "El nombre del archivo contiene Turbo-Lightning; la version fijada esta etiquetada SDXL Lightning por el distribuidor."
+      ],
+      "verification": {
+        "metadata_checked_on": "2026-11-20",
+        "sha256_source": "provider_metadata",
+        "weights_verified_locally": false,
+        "generation_tested": false
+      }
+    },
+    {
+      "key": "epicrealism_natural_sin_rc1_vae",
+      "name": "epiCRealism",
+      "version": "Natural Sin RC1 VAE",
+      "architecture": "sd15",
+      "base_model": "SD 1.5",
+      "lora_family": "sd15",
+      "source": {
+        "provider": "civitai",
+        "creator": "epinikion",
+        "model_id": 25694,
+        "version_id": 143906,
+        "file_id": 106430,
+        "url": "https://civitai.com/models/25694?modelVersionId=143906",
+        "metadata_url": "https://civitai.com/api/v1/model-versions/143906",
+        "download_url": "https://civitai.com/api/download/models/143906?fileId=106430"
+      },
+      "file": "epiCRealism-naturalSinVAE.safetensors",
+      "folder": "StableDiffusion",
+      "format": "safetensors",
+      "precision": "fp16",
+      "size_bytes": 2132625612,
+      "sha256": "84d76a0328ee5a1a2a1d466ba7478ab59183e3fea385441528aa4c5d567fd43e",
+      "vae": {
+        "mode": "checkpoint",
+        "architecture": "sd15",
+        "external_key": null
+      },
+      "recommended": {
+        "width": 512,
+        "height": 768,
+        "steps": 25,
+        "cfg": 5,
+        "sampler": "dpmpp_sde",
+        "scheduler": "karras",
+        "clip_skip": 1,
+        "prompt_prefix": "",
+        "negative": "cartoon, painting, illustration, (worst quality, low quality, normal quality:2)"
+      },
+      "recommendation_sources": [
+        "https://civitai.com/models/25694?modelVersionId=143906"
+      ],
+      "project_default_fields": [
+        "scheduler",
+        "clip_skip",
+        "prompt_prefix"
+      ],
+      "notes": [
+        "Se selecciona explicitamente Natural Sin RC1 VAE, distinta de Natural Sin sin ese sufijo.",
+        "Usar el VAE incorporado de esta variante; no necesita un archivo epicrealism-vae externo."
+      ],
+      "verification": {
+        "metadata_checked_on": "2026-11-20",
+        "sha256_source": "provider_metadata",
+        "weights_verified_locally": false,
+        "generation_tested": false
+      }
+    },
+    {
+      "key": "ghostmix_v2_baked_vae",
+      "name": "GhostMix",
+      "version": "v2.0-BakedVAE",
+      "architecture": "sd15",
+      "base_model": "SD 1.5",
+      "lora_family": "sd15",
+      "source": {
+        "provider": "civitai",
+        "creator": "_GhostInShell_",
+        "model_id": 36520,
+        "version_id": 76907,
+        "file_id": 53571,
+        "url": "https://civitai.com/models/36520?modelVersionId=76907",
+        "metadata_url": "https://civitai.com/api/v1/model-versions/76907",
+        "download_url": "https://civitai.com/api/download/models/76907?fileId=53571"
+      },
+      "file": "GhostMix-V2.0-fp16-BakedVAE.safetensors",
+      "folder": "StableDiffusion",
+      "format": "safetensors",
+      "precision": "fp16",
+      "size_bytes": 2400065384,
+      "sha256": "e3edb8a26f44dfddc124129004b5ded3378be974b8d3bf82f43b9660d416d3d1",
+      "vae": {
+        "mode": "checkpoint",
+        "architecture": "sd15",
+        "external_key": null
+      },
+      "recommended": {
+        "width": 512,
+        "height": 768,
+        "steps": 25,
+        "cfg": 7,
+        "sampler": "dpmpp_2m",
+        "scheduler": "karras",
+        "clip_skip": 1,
+        "prompt_prefix": "",
+        "negative": ""
+      },
+      "recommendation_sources": [
+        "https://civitai.com/models/36520?modelVersionId=76907"
+      ],
+      "project_default_fields": [
+        "scheduler",
+        "clip_skip",
+        "prompt_prefix",
+        "negative"
+      ],
+      "notes": [
+        "El autor usa CLIP skip 1 o 2 segun la imagen; 1 es el punto de partida propuesto.",
+        "El autor recomienda una segunda pasada Highres Fix; este perfil solo describe la generacion inicial."
+      ],
+      "verification": {
+        "metadata_checked_on": "2026-11-20",
+        "sha256_source": "provider_metadata",
+        "weights_verified_locally": false,
+        "generation_tested": false
+      }
+    },
+    {
+      "key": "ghostxl_v1_baked_vae",
+      "name": "GhostXL",
+      "version": "v1.0-Baked VAE",
+      "architecture": "sdxl",
+      "base_model": "SDXL 1.0",
+      "lora_family": "sdxl",
+      "source": {
+        "provider": "civitai",
+        "creator": "_GhostInShell_",
+        "model_id": 312431,
+        "version_id": 350624,
+        "file_id": 279292,
+        "url": "https://civitai.com/models/312431?modelVersionId=350624",
+        "metadata_url": "https://civitai.com/api/v1/model-versions/350624",
+        "download_url": "https://civitai.com/api/download/models/350624?fileId=279292"
+      },
+      "file": "GhostXL-V1.0.safetensors",
+      "folder": "StableDiffusion",
+      "format": "safetensors",
+      "precision": "fp16",
+      "size_bytes": 7105349064,
+      "sha256": "ee1fdc86f76e71ca223d671da5243c0103e9f2e3d8e80a49c9bdf24b991ba6c0",
+      "vae": {
+        "mode": "checkpoint",
+        "architecture": "sdxl",
+        "external_key": null
+      },
+      "recommended": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 25,
+        "cfg": 7,
+        "sampler": "dpmpp_2m",
+        "scheduler": "karras",
+        "clip_skip": null,
+        "prompt_prefix": "",
+        "negative": ""
+      },
+      "recommendation_sources": [
+        "https://civitai.com/models/312431?modelVersionId=350624"
+      ],
+      "project_default_fields": [
+        "width",
+        "height",
+        "steps",
+        "cfg",
+        "sampler",
+        "scheduler",
+        "clip_skip",
+        "prompt_prefix",
+        "negative"
+      ],
+      "notes": [
+        "Modelo XL independiente de GhostMix SD 1.5, basado en Animagine XL 3.0 con mezclas adicionales.",
+        "1024 x 1024 es el punto de partida del proyecto dentro del rango 1024-1536 indicado por el autor."
+      ],
+      "verification": {
+        "metadata_checked_on": "2026-11-20",
+        "sha256_source": "provider_metadata",
+        "weights_verified_locally": false,
+        "generation_tested": false
+      }
+    },
+    {
+      "key": "rev_animated_v2_rebirth_vae",
+      "name": "ReV Animated",
+      "version": "V2 Rebirth+VAE",
+      "architecture": "sd15",
+      "base_model": "SD 1.5",
+      "lora_family": "sd15",
+      "source": {
+        "provider": "civitai",
+        "creator": "Zovya",
+        "model_id": 7371,
+        "version_id": 428862,
+        "file_id": 349802,
+        "url": "https://civitai.com/models/7371?modelVersionId=428862",
+        "metadata_url": "https://civitai.com/api/v1/model-versions/428862",
+        "download_url": "https://civitai.com/api/download/models/428862?fileId=349802"
+      },
+      "file": "revAnimated_V2_Rebirth_fp16_VAE.safetensors",
+      "folder": "StableDiffusion",
+      "format": "safetensors",
+      "precision": "fp16",
+      "size_bytes": 4244098718,
+      "sha256": "7ca4bba71f903be109c33dffa800c6c816f135bac411bf748d5effff6f3208cf",
+      "vae": {
+        "mode": "checkpoint",
+        "architecture": "sd15",
+        "external_key": null
+      },
+      "recommended": {
+        "width": 512,
+        "height": 768,
+        "steps": 25,
+        "cfg": 7,
+        "sampler": "dpmpp_2m",
+        "scheduler": "karras",
+        "clip_skip": 1,
+        "prompt_prefix": "((best quality)), ((masterpiece)), (detailed)",
+        "negative": "(worst quality, low quality:1.4)"
+      },
+      "recommendation_sources": [
+        "https://civitai.com/models/7371?modelVersionId=428862"
+      ],
+      "project_default_fields": [
+        "steps",
+        "cfg",
+        "sampler",
+        "scheduler",
+        "clip_skip"
+      ],
+      "notes": [
+        "Se selecciona V2 Rebirth+VAE para fijar explicitamente el decodificador incorporado.",
+        "Es un checkpoint de imagen; su nombre no implica generacion de video."
+      ],
+      "verification": {
+        "metadata_checked_on": "2026-11-20",
+        "sha256_source": "provider_metadata",
+        "weights_verified_locally": false,
+        "generation_tested": false
+      }
+    }
+  ],
+  "vaes": [
+    {
+      "key": "sd15_mse_840000",
+      "name": "SD VAE ft-MSE 840000",
+      "version": "ft-MSE 840000 EMA pruned",
+      "architecture": "sd15",
+      "source": {
+        "provider": "huggingface",
+        "repo": "stabilityai/sd-vae-ft-mse-original",
+        "url": "https://huggingface.co/stabilityai/sd-vae-ft-mse-original",
+        "download_url": "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/629b3ad3030ce36e15e70c5db7d91df0d60c627f/vae-ft-mse-840000-ema-pruned.safetensors",
+        "revision": "629b3ad3030ce36e15e70c5db7d91df0d60c627f",
+        "metadata_url": "https://huggingface.co/api/models/stabilityai/sd-vae-ft-mse-original?blobs=true"
+      },
+      "file": "vae-ft-mse-840000-ema-pruned.safetensors",
+      "folder": "VAE",
+      "sha256": "735e4c3a447a3255760d7f86845f09f937809baa529c17370d83e4c3758f3c75",
+      "notes": [
+        "Identidad reutilizada del manifiesto animatediff_models.json; no es un VAE SDXL.",
+        "Ningun checkpoint de este catalogo lo requiere: todos usan su VAE incorporado."
+      ],
+      "size_bytes": 334641190,
+      "format": "safetensors",
+      "verification": {
+        "metadata_checked_on": "2026-11-20",
+        "sha256_source": "provider_metadata",
+        "weights_verified_locally": false,
+        "generation_tested": false
+      }
+    }
+  ]
+}

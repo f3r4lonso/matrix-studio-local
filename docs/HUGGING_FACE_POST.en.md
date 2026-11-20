@@ -17,3 +17,9 @@ Functionality and visual quality have different validation limits: short AI mont
 The release includes code, tests, and instructions, without models, private conversations, reference images, or generated outputs. Weights are downloaded from their distributors and retain their own licenses.
 
 The aim is to provide an inspectable local foundation that can be reproduced without relying on a paid generation API. The README explains clean installation and the limits of validation. Documentation is available in Spanish and English; the current application interface uses Spanish labels.
+
+## Update — 20 November 2026
+
+Engines now share `Data/Engines`, with weights, encoders, VAEs and LoRAs organized under `Data/Models`. Portable path configuration and an inventory command simplify administration while retaining previous installation paths. An eight-checkpoint catalog records versions, architectures, sources, SHA256, VAE information and suggested settings; catalog entries are not all installed or generation-tested.
+
+New five-second sparring comparisons favor the tested 14B four-step configuration for this particular reference and seed, while still showing motion trails and imperfect action counts. These observations do not establish reliable choreography. See [asset management](LOCAL_ASSETS.md), [image catalog](IMAGE_MODELS.md) and [video parameters and limitations](VIDEO_TUNING.md).

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "comfy_engine": "Data/Engines/ComfyUI",
+  "sd_cpp_engine": "Data/Engines/StableDiffusionCpp",
+  "cuda_runtime": "Data/Engines/CUDA12",
+  "qwen_model": "Data/Models/DiffusionModels/Qwen-Image-2.1-Turbo-AD-Q4_K.gguf",
+  "qwen_encoder": "Data/Models/TextEncoders/Qwen-Image-2.1-Turbo-Uncensored-AD-Q4_K.gguf",
+  "qwen_vae": "Data/Models/VAE/qwen_image_2.1_vae_bf16.safetensors"
+}

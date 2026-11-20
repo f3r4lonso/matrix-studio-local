@@ -63,12 +63,12 @@ cd matrix-studio-local
 .\scripts\setup-local.ps1 -Python python
 ```
 
-El instalador crea `Data/Packages/ComfyUI/venv`, fija los commits de los motores, instala dependencias y genera `Data/matrix-studio-model-paths.yaml` con las rutas de **tu** instalación. No modifica políticas de ejecución, firewall ni variables del sistema. Si tu política de PowerShell bloquea scripts, revisa el código y la configuración de tu terminal; el instalador no la cambia automáticamente.
+El instalador crea `Data/Engines/ComfyUI/venv`, fija los commits de los motores, instala dependencias y genera `Data/matrix-studio-model-paths.yaml` con las rutas de **tu** instalación. No modifica políticas de ejecución, firewall ni variables del sistema. Si tu política de PowerShell bloquea scripts, revisa el código y la configuración de tu terminal; el instalador no la cambia automáticamente.
 
 Activa el Python creado:
 
 ```powershell
-$py = '.\Data\Packages\ComfyUI\venv\Scripts\python.exe'
+$py = '.\Data\Engines\ComfyUI\venv\Scripts\python.exe'
 ```
 
 Descarga únicamente los módulos elegidos:
@@ -98,7 +98,7 @@ También puedes usar `Abrir Matrix Studio.cmd`. Abre **http://127.0.0.1:7880/** 
 Si prefieres iniciar ComfyUI manualmente, en otra terminal, desde la raíz:
 
 ```powershell
-& $py Data/Packages/ComfyUI/main.py `
+& $py Data/Engines/ComfyUI/main.py `
   --listen 127.0.0.1 --port 8188 --use-pytorch-cross-attention `
   --extra-model-paths-config Data/matrix-studio-model-paths.yaml
 ```
@@ -131,7 +131,7 @@ Con ComfyUI arrancado:
 & $py -W ignore -m unittest discover -s MatrixStudio/tests -q
 ```
 
-El diagnóstico comprueba versiones, CUDA, archivos de pesos y disponibilidad de nodos; no certifica la estética del resultado. Las 21 pruebas de aplicación cubren límites de la API, integración con motores simulados, rutas de modelos y VAE, lotes, borrado/Deshacer, montajes con reloj real de MP4 y reanudación. No ejecutan los modelos neuronales.
+El diagnóstico comprueba versiones, CUDA, archivos de pesos y disponibilidad de nodos; no certifica la estética del resultado. Las 24 pruebas de aplicación cubren límites de la API, integración con motores simulados, rutas de modelos y VAE, lotes, borrado/Deshacer, montajes con reloj real de MP4 y reanudación. No ejecutan los modelos neuronales.
 
 ## Uso y ajustes
 
@@ -192,3 +192,7 @@ Se han excluido las bases de datos, resultados, referencias, experimentos privad
 Las pruebas reales de vídeo mejoraron algunos aspectos de movimiento y color, pero siguieron mostrando fusiones de cuerpos y contactos poco naturales en escenas de lucha. Este proyecto no garantiza vídeo fotorrealista fiable, control de pose, identidad perfecta ni calidad cinematográfica. Se probó generación IA de montajes cortos de 6 y 10 segundos; los 120 segundos se comprobaron en el ensamblador con escenas sintéticas, **no con un render IA completo de dos minutos**. Windows/NVIDIA es la plataforma validada; Linux, macOS, AMD y otras GPU quedan por comprobar.
 
 Código original bajo [MIT](LICENSE). Los modelos y componentes externos conservan sus propias licencias.
+
+## Organización de motores y catálogo
+
+Las instalaciones nuevas agrupan motores en `Data/Engines` y checkpoints, codificadores, VAE y LoRAs en `Data/Models`. Las rutas son configurables y se mantienen las instalaciones anteriores: consulta [estructura e inventario](docs/LOCAL_ASSETS.md). El [catálogo de imágenes](docs/IMAGE_MODELS.md) documenta ocho checkpoints con versión, origen, SHA256, VAE y ajustes; no significa que todos estén instalados o probados. Las [pruebas de sparring de cinco segundos](docs/VIDEO_TUNING.md) recogen parámetros y defectos de movimiento pendientes.

@@ -18,6 +18,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import aiohttp
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from runtime_paths import project_asset
 import av
 from aiohttp import web
 from PIL import Image, ImageOps, UnidentifiedImageError
@@ -56,12 +58,12 @@ CONFIG_FILE = DATA / 'engines.json'
 CONFIG = {**DEFAULT, **(json.loads(CONFIG_FILE.read_text()) if CONFIG_FILE.exists() else {})}
 QWEN = Path(os.environ.get('MATRIX_STUDIO_QWEN_DIR', str(ROOT / 'QwenImageLocal')))
 QFILES = [
-    Path(os.environ.get('MATRIX_STUDIO_QWEN_CLI', str(QWEN / 'engine/sd-cli.exe'))),
-    Path(os.environ.get('MATRIX_STUDIO_QWEN_MODEL', str(ROOT / 'Data/Models/Qwen/model.gguf'))),
-    Path(os.environ.get('MATRIX_STUDIO_QWEN_ENCODER', str(ROOT / 'Data/Models/Qwen/encoder.gguf'))),
-    Path(os.environ.get('MATRIX_STUDIO_QWEN_VAE', str(ROOT / 'Data/Models/Qwen/vae.safetensors'))),
+    Path(os.environ.get('MATRIX_STUDIO_QWEN_CLI', str((QWEN / 'engine' if 'MATRIX_STUDIO_QWEN_DIR' in os.environ else project_asset('sd_cpp_engine')) / 'sd-cli.exe'))),
+    Path(os.environ.get('MATRIX_STUDIO_QWEN_MODEL', str(project_asset('qwen_model')))),
+    Path(os.environ.get('MATRIX_STUDIO_QWEN_ENCODER', str(project_asset('qwen_encoder')))),
+    Path(os.environ.get('MATRIX_STUDIO_QWEN_VAE', str(project_asset('qwen_vae')))),
 ]
-CUDA = Path(os.environ.get('MATRIX_STUDIO_CUDA_DIR', str(QWEN / 'engine')))
+CUDA = Path(os.environ.get('MATRIX_STUDIO_CUDA_DIR', str(QWEN / 'engine' if 'MATRIX_STUDIO_QWEN_DIR' in os.environ else project_asset('cuda_runtime'))))
 
 
 
@@ -139,7 +141,7 @@ async def boot_comfy(request):
         pass
     if CONFIG['comfy'] != DEFAULT['comfy']:
         raise ValueError('Para un puerto personalizado, inicia ComfyUI desde Stability Matrix.')
-    folder = Path(os.environ.get('MATRIX_STUDIO_COMFY_DIR', str(ROOT / 'Data/Packages/ComfyUI')))
+    folder = Path(os.environ.get('MATRIX_STUDIO_COMFY_DIR', str(project_asset('comfy_engine'))))
     log = open(DATA / 'comfyui.log', 'a', encoding='utf-8')
     try:
         app['comfy_process'] = await asyncio.create_subprocess_exec(str(Path(os.environ.get('MATRIX_STUDIO_COMFY_PYTHON', str(folder / 'venv/Scripts/python.exe')))),
@@ -537,7 +539,7 @@ def mesh_workflow(p, image_name):
 
 def sd15_checkpoints():
     found = set()
-    for folder in (ROOT / 'Data/Models/StableDiffusion', ROOT / 'Data/Packages/ComfyUI/models/checkpoints'):
+    for folder in (ROOT / 'Data/Models/StableDiffusion', Path(os.environ.get('MATRIX_STUDIO_COMFY_DIR', str(project_asset('comfy_engine')))) / 'models/checkpoints'):
         if not folder.exists():
             continue
         for file in folder.rglob('*.safetensors'):

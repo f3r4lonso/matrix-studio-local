@@ -15,3 +15,12 @@ Revisión realizada el 19 de noviembre de 2026 sobre una copia limpia del códig
 La revisión se limita a los archivos publicados y las comprobaciones indicadas. No constituye una reinstalación completa del stack GPU en un segundo equipo ni una garantía de calidad visual. El hardware y las limitaciones están documentados por separado.
 
 `release-manifest.json` enumera los archivos de esta distribución y los SHA256 de sus blobs Git (texto normalizado a LF); el propio manifiesto se excluye de esa lista para evitar una referencia circular.
+
+## Actualización del 20 de noviembre de 2026
+
+- Se añadió el catálogo de ocho checkpoints, configuración portable de rutas, compatibilidad con instalaciones anteriores y un inventario sin carga de modelos.
+- Pasaron 24 pruebas aisladas, incluidos los valores del sampler rápido de Wan y la resolución de rutas antiguas/configuradas.
+- Se comprobaron la sintaxis Python y PowerShell, el plan del instalador sin escrituras, la creación de configuración en una carpeta temporal, la conservación de un motor personalizado y el inventario sin motores opcionales.
+- La copia pública arrancó en un puerto independiente con datos temporales, cero conversaciones y cero resultados.
+- La revisión automática de privacidad incluye la lista privada de identificadores. Los pesos, DLL, motores instalados, referencias y resultados de pruebas permanecen fuera de la publicación.
+- Las observaciones de vídeo se documentan con parámetros y límites de inspección; no se presentan como garantía de coreografía ni se afirma haber probado todos los modelos del catálogo.

@@ -4,7 +4,7 @@ Este directorio contiene únicamente los lanzadores PowerShell. No incluye ejecu
 
 Descarga un binario compatible desde [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp/releases) y un conjunto compatible de modelo, codificador y VAE desde la [ficha del modelo](https://huggingface.co/AtomicChat/Qwen-Image-2.1-Turbo-GGUF). Revisa las licencias y opciones de la versión elegida: estos lanzadores usan las opciones Turbo del build original indicado en el [README principal](../README.md).
 
-Coloca los ejecutables y sus dependencias CUDA en `engine/`, y los pesos en `../Data/Models/Qwen/` con los nombres `model.gguf`, `encoder.gguf` y `vae.safetensors`, o define:
+Coloca los ejecutables en `Data/Engines/StableDiffusionCpp`, las DLL CUDA compatibles en `Data/Engines/CUDA12` y los pesos en `Data/Models/DiffusionModels`, `TextEncoders` y `VAE`, desde la raíz del proyecto. Los nombres y rutas se definen en `config/runtime-paths.example.json`; genera y adapta `Data/runtime-paths.json` con `scripts/configure_models.py`. Consulta la [estructura de archivos](../docs/LOCAL_ASSETS.md). También puedes definir:
 
 ```powershell
 $env:MATRIX_STUDIO_QWEN_MODEL = 'D:/models/qwen/model.gguf'

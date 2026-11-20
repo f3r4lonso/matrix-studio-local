@@ -569,6 +569,8 @@ class StudioTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(graph['high_sample']['inputs']['sampler_name'], 'uni_pc')
         fast = self.studio.video_workflow({**p, 'profile': 'fast', 'steps': 4, 'cfg': 1, 'shift': 5}, 'Athletes', 'reference.png')
         self.assertIn('high_lora', fast)
+        self.assertEqual(fast['high_sample']['inputs']['sampler_name'], 'euler')
+        self.assertEqual(fast['low_sample']['inputs']['sampler_name'], 'euler')
         self.assertEqual(fast['high_sample']['inputs']['end_at_step'], 2)
         native = self.studio.video_workflow({**p, 'family': 'wan5b', 'fps': 24, 'cfg': 5, 'shift': 8, 'steps': 20}, 'Athletes', 'reference.png')
         self.assertEqual(native['latent']['class_type'], 'Wan22ImageToVideoLatent')

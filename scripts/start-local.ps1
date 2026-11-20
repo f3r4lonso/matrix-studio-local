@@ -1,7 +1,8 @@
 param([string]$ComfyDir = '', [switch]$NoBrowser)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-if (!$ComfyDir) { $ComfyDir = Join-Path $projectRoot 'Data/Packages/ComfyUI' }
+. (Join-Path $projectRoot 'QwenImageLocal/paths.ps1')
+if (!$ComfyDir) { $ComfyDir = (Get-MatrixRuntimePaths).comfy_engine }
 $venvPython = Join-Path $ComfyDir 'venv/Scripts/python.exe'
 if (!(Test-Path -LiteralPath $venvPython)) { throw 'Run scripts/setup-local.ps1 first or pass -ComfyDir.' }
 $env:MATRIX_STUDIO_COMFY_DIR = $ComfyDir

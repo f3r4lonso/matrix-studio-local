@@ -17,3 +17,9 @@ Es importante distinguir funcionamiento y calidad: se generaron montajes IA cort
 Se publica código, pruebas e instrucciones, sin modelos, conversaciones, referencias ni resultados privados. Los pesos se descargan desde sus distribuidores y mantienen sus propias licencias.
 
 El objetivo es ofrecer una base local que pueda inspeccionarse y reproducirse, sin depender de una API de generación de pago. La instalación limpia y los límites de validación están explicados en el README.
+
+## Actualización — 20 de noviembre de 2026
+
+Los motores se agrupan en `Data/Engines` y los pesos, codificadores, VAE y LoRAs en `Data/Models`. La configuración portable de rutas y el inventario facilitan su administración conservando las instalaciones anteriores. El catálogo de ocho checkpoints incluye versión, arquitectura, origen, SHA256, VAE y ajustes; no todos están instalados o probados.
+
+Las nuevas comparaciones de sparring de cinco segundos favorecieron la configuración 14B de cuatro pasos para esa referencia y semilla, pero aún mostraron estelas y un número de golpes inexacto. No garantizan coreografía fiable. Consulta [gestión de archivos](LOCAL_ASSETS.md), [catálogo de imágenes](IMAGE_MODELS.md) y [parámetros y límites del vídeo](VIDEO_TUNING.md).
