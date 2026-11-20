@@ -1,0 +1,52 @@
+[
+  {
+    "key": "motion_fix_high",
+    "repo": "rzgar/Wan2.2_I2V_LightX2V_Slow-Mo_Fix",
+    "revision": "9158a6afd84b90c0c01197ab242a4d93ae8862ff",
+    "file": "wan2.2_i2v_lightx2v_motion_fix_high.safetensors",
+    "folder": "Lora",
+    "sha256": "08779d70f0076330e54433503d4e7ab6a791aaed55b2ab7e09cdcb3b9387efe7",
+    "bytes": 634687436,
+    "license": "apache-2.0"
+  },
+  {
+    "key": "motion_fix_low",
+    "repo": "rzgar/Wan2.2_I2V_LightX2V_Slow-Mo_Fix",
+    "revision": "9158a6afd84b90c0c01197ab242a4d93ae8862ff",
+    "file": "wan2.2_i2v_lightx2v_motion_fix_low.safetensors",
+    "folder": "Lora",
+    "sha256": "4e8939db5edc9389bab0001838fa09affe9ec51dd3c49d21a197edb6e0a82211",
+    "bytes": 632204588,
+    "license": "apache-2.0"
+  },
+  {
+    "key": "punch",
+    "repo": "joachimsallstrom/Aether_Punch_Wan22_5b_i2v_LoRA",
+    "revision": "df0042e70a2472bd52013a073a52263a7a5d8cde",
+    "file": "Aether_Punch_v1_-_Wan22_5b_i2v_LoRA.safetensors",
+    "folder": "Lora",
+    "sha256": "882f029c82568cef13c3311ed73b513031e87dab1a0e8a58797c2225070c8d4e",
+    "bytes": 161292776,
+    "license": "creativeml-openrail-m"
+  },
+  {
+    "key": "kungfu_high",
+    "repo": "joyfox/Wan2.2-I2V-KungFu",
+    "revision": "a1b171594b20e723ae68fc19c4f1a6bef1ce9e0f",
+    "file": "wan2.2_wugong_i2v_high.safetensors",
+    "folder": "Lora",
+    "sha256": "6a2eb34a83ebb9b76fb09f2ae66e1ecdeba1dd4cbb0143574bbe9ae87652b9f8",
+    "bytes": 306807976,
+    "license": "apache-2.0"
+  },
+  {
+    "key": "kungfu_low",
+    "repo": "joyfox/Wan2.2-I2V-KungFu",
+    "revision": "a1b171594b20e723ae68fc19c4f1a6bef1ce9e0f",
+    "file": "wan2.2_wugong_i2v_low.safetensors",
+    "folder": "Lora",
+    "sha256": "d0bd60b224bd942db86750cf443c908cd763bd50d0667f9788d3f3ddeccb1489",
+    "bytes": 306807976,
+    "license": "apache-2.0"
+  }
+]

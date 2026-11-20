@@ -34,3 +34,9 @@ Todos los checkpoints seleccionados incluyen VAE. La referencia `sd15_mse_840000
 GhostMix y GhostXL son entradas distintas. DreamShaper Alpha2 y Lightning tienen perfiles distintos; no se deben intercambiar sus pasos, CFG o sampler. No hay modelos SD 2.1 en esta selección.
 
 Antes de añadir una versión, consultar sus metadatos oficiales, comprobar archivo, tamaño y SHA256, registrar su origen y distinguir recomendaciones del autor de valores propuestos. Al descargar, un futuro instalador deberá verificar el SHA256 de los bytes antes de aceptar el archivo. Civitai puede exigir autenticación o aceptación de condiciones; no almacenar tokens en este catálogo. Las licencias y condiciones son las de la versión enlazada, no la licencia MIT del código del proyecto.
+
+## Descarga selectiva y comprobación
+
+`MatrixStudio/install_image_models.py --help` enumera las claves aceptadas. Pasa únicamente los checkpoints elegidos. El instalador usa fuentes Hugging Face fijadas por revisión, verifica tamaño y SHA256 y conserva las descargas incompletas como `.part`. Pony V6 XL, Juggernaut XL v9 y EpicRealism se comprobaron localmente mediante generación de imágenes; esas pruebas no convierten todos los registros del catálogo en modelos instalados. Los pesos no se publican con Studio.
+
+La galería muestra el motor y modelo guardados con cada resultado. [Forge](FORGE.md) utiliza la misma biblioteca de pesos.

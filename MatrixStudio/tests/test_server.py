@@ -53,6 +53,62 @@ class StudioTest(unittest.IsolatedAsyncioTestCase):
         await self.client.close()
         self.folder.cleanup()
 
+    def stored_action_clip(self, color=(80,80,80), **extra):
+        rid, cid = self.studio.uuid.uuid4().hex, self.studio.uuid.uuid4().hex
+        params = dict(kind='video',engine='comfy',family='wan14b',profile='fast',adapter='motion_fix',
+            action_lora='none',frames=81,fps=16,interpolation=1,width=128,height=128,seed=7,
+            steps=4,cfg=1,shift=5,negative='',input_image='fixture.png',preset='sparring',**extra)
+        content = self.video_fixture(color,81,16)
+        (self.studio.OUTPUT/(rid+'.mp4')).write_bytes(content)
+        with self.studio.DB:
+            self.studio.DB.execute('INSERT INTO chats (id,title,created) VALUES (?,?,?)',(cid,'Fixture',1))
+            self.studio.DB.execute('INSERT INTO renders (id,chat_id,prompt,params,status,detail,image,created) VALUES (?,?,?,?,?,?,?,?)',
+                (rid,cid,'Boxing',json.dumps(params),'done','Done','/outputs/'+rid+'.mp4',1))
+        return rid,params,content
+
+
+    async def test_action_continuation_and_assembly_preserve_boundary_and_duration(self):
+        rid,params,content = self.stored_action_clip()
+        captured=[]
+        async def fake_render(app,row,p):
+            captured.append(p)
+            return content
+        self.studio.render_comfy=fake_render
+        response=await self.client.post('/api/video/continue',json={'source_id':rid})
+        self.assertEqual(response.status,200)
+        next_id=(await response.json())['id']
+        await asyncio.wait_for(self.app['queue'].join(),timeout=5)
+        self.assertEqual(captured[0]['seed'],params['seed']+1)
+        self.assertEqual(captured[0]['continuation_of'],rid)
+        source=self.studio.last_action_frame(self.studio.OUTPUT/(rid+'.mp4'))
+        with Image.open(self.studio.INPUTS/captured[0]['input_image']) as image:
+            self.assertEqual(image.convert('RGB').tobytes(),source.tobytes())
+        response=await self.client.post('/api/video/assemble',json={'first_id':rid,'second_id':next_id})
+        self.assertEqual(response.status,200)
+        assembled=await response.json()
+        with av.open(str(self.studio.OUTPUT/(assembled['id']+'.mp4'))) as container:
+            fps=float(container.streams.video[0].average_rate)
+            frames=list(container.decode(video=0))
+        self.assertEqual((len(frames),fps),(161,32))
+        self.assertGreaterEqual(len(frames)/fps,5)
+        row=self.studio.rows('SELECT * FROM renders WHERE id=?',(assembled['id'],))[0]
+        meta=json.loads(row['params'])
+        self.assertEqual(meta['backend'],'action_edit')
+        self.assertEqual(meta['interpolation'],1)
+        self.assertEqual(meta['source_ids'],[rid,next_id])
+
+
+    async def test_action_edit_rejects_missing_source_and_unrelated_reference(self):
+        response=await self.client.post('/api/video/continue',json={'source_id':'../invalid'})
+        self.assertEqual(response.status,400)
+        first,params,content=self.stored_action_clip()
+        second,_,_=self.stored_action_clip(continuation_of=first)
+        Image.new('RGB',(128,128),'white').save(self.studio.INPUTS/'fixture.png')
+        response=await self.client.post('/api/video/assemble',json={'first_id':first,'second_id':second})
+        self.assertEqual(response.status,400)
+        self.assertEqual(len(self.studio.rows('SELECT * FROM renders')),2)
+
+
     async def test_invalid_prompt_does_not_create_chat(self):
         result = await self.client.post('/api/generate', json={'prompt': ' ', 'engine': 'qwen'})
         self.assertEqual(result.status, 400)
@@ -579,6 +635,87 @@ class StudioTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(native['sample']['inputs']['cfg'], 5)
         self.assertEqual(native['sample']['inputs']['steps'], 20)
         self.assertEqual(native['video']['inputs']['fps'], 24)
+
+    async def test_video_status_does_not_require_acceleration_loras_for_native_profile(self):
+        self.studio.ROOT = Path(self.folder.name)
+        for model in self.studio.WAN_MODELS:
+            if model['key'].startswith('lora_'):
+                continue
+            target = self.studio.ROOT / 'Data/Models' / model['folder'] / Path(model['file']).name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(b'model')
+        status = await (await self.client.get('/api/video/status')).json()
+        family = next(f for f in status['families'] if f['id'] == 'wan14b')
+        self.assertTrue(family['ready'])
+        self.assertFalse(family['fast_ready'])
+        native = next(p for p in status['presets'] if p['id'] == 'action_native')
+        self.assertTrue(native['ready'])
+        motion = next(p for p in status['presets'] if p['id'] == 'action_motion')
+        self.assertFalse(motion['ready'])
+
+
+    def test_wan_rife_keeps_base_frames_and_at_least_five_seconds(self):
+        for family, frames, fps in (('wan14b', 81, 16), ('wan5b', 121, 24)):
+            p = {'family': family, 'profile': 'fast', 'width': 256, 'height': 256,
+                 'frames': frames, 'fps': fps, 'steps': 4, 'cfg': 1, 'shift': 5,
+                 'negative': '', 'seed': 1, 'interpolation': 2}
+            graph = self.studio.video_workflow(p, 'Boxing', 'reference.png')
+            self.assertEqual(graph['interpolate']['class_type'], 'FrameInterpolate')
+            self.assertEqual(graph['interpolate']['inputs']['multiplier'], 2)
+            self.assertEqual(graph['video']['inputs']['images'], ['interpolate', 0])
+            self.assertEqual(graph['video']['inputs']['fps'], fps * 2)
+            latent = graph['latent'] if family == 'wan5b' else graph['conditioning']
+            self.assertEqual(latent['inputs']['length'], frames)
+            self.assertGreaterEqual(((frames - 1) * 2 + 1) / (fps * 2), 5)
+
+
+    def test_action_presets_use_matching_experts_and_vae(self):
+        from action_profiles import PRESETS, NAMES, prepare_action, validate_adapters
+        for preset in PRESETS:
+            data = prepare_action({'preset': preset['id']})
+            p = {**data, 'negative': '', 'seed': 1, 'fps': 24 if data['family'] == 'wan5b' else 16}
+            validate_adapters(p)
+            graph = self.studio.video_workflow(p, data['prompt'], 'reference.png')
+            if p['width'] * p['height'] > 512 * 512:
+                self.assertEqual(graph['decode']['class_type'], 'VAEDecodeTiled')
+                self.assertGreaterEqual(graph['decode']['inputs']['temporal_size'] // 4, (p['frames'] - 1) // 4 + 1)
+            else:
+                self.assertEqual(graph['decode']['class_type'], 'VAEDecode')
+                self.assertNotIn('temporal_size', graph['decode']['inputs'])
+            if data['family'] == 'wan5b':
+                self.assertEqual(graph['vae']['inputs']['vae_name'], self.studio.WAN5B_NAMES['vae'])
+                self.assertEqual(graph['action_lora']['inputs']['lora_name'], NAMES['punch'])
+                self.assertEqual(graph['shift']['inputs']['model'], ['action_lora', 0])
+            else:
+                self.assertEqual(graph['vae']['inputs']['vae_name'], self.studio.WAN_NAMES['vae'])
+                if data['adapter'] == 'motion_fix':
+                    for phase in ('high', 'low'):
+                        self.assertEqual(graph[phase + '_lora']['inputs']['lora_name'], NAMES['motion_fix_' + phase])
+                if data['action_lora'] == 'kungfu':
+                    for phase in ('high', 'low'):
+                        self.assertEqual(graph[phase + '_action']['inputs']['lora_name'], NAMES['kungfu_' + phase])
+                        self.assertEqual(graph[phase + '_action']['inputs']['model'], [phase + '_lora', 0])
+
+
+    async def test_action_presets_reject_unknown_or_mismatched_family(self):
+        for payload in ({'preset': 'not-a-preset'}, {'preset': 'punch', 'family': 'wan14b'}):
+            response = await self.client.post('/api/video/generate', json=payload)
+            self.assertEqual(response.status, 400)
+        self.assertEqual(await (await self.client.get('/api/chats')).json(), [])
+
+
+    def test_action_adapters_reject_cross_architecture_or_invalid_strength(self):
+        from action_profiles import validate_adapters
+        for params in (
+            {'family': 'wan14b', 'profile': 'fast', 'action_lora': 'punch'},
+            {'family': 'wan5b', 'profile': 'balanced', 'action_lora': 'kungfu'},
+            {'family': 'wan14b', 'profile': 'balanced', 'adapter': 'motion_fix'},
+            {'family': 'wan14b', 'profile': 'fast', 'action_strength': float('nan')},
+            {'family': 'wan14b', 'profile': 'fast', 'action_lora': '../arbitrary.safetensors'},
+        ):
+            with self.assertRaises(ValueError):
+                validate_adapters(params)
+
 
     async def test_wan_and_animatediff_batch_videos_have_unique_seeds_and_shared_chat(self):
         self.studio.ROOT = Path(self.folder.name)

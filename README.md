@@ -131,7 +131,7 @@ Con ComfyUI arrancado:
 & $py -W ignore -m unittest discover -s MatrixStudio/tests -q
 ```
 
-El diagnóstico comprueba versiones, CUDA, archivos de pesos y disponibilidad de nodos; no certifica la estética del resultado. Las 24 pruebas de aplicación cubren límites de la API, integración con motores simulados, rutas de modelos y VAE, lotes, borrado/Deshacer, montajes con reloj real de MP4 y reanudación. No ejecutan los modelos neuronales.
+El diagnóstico comprueba versiones, CUDA, archivos de pesos y disponibilidad de nodos; no certifica la estética del resultado. Las 33 pruebas de aplicación cubren límites de la API, integración con motores simulados, rutas de modelos y VAE, lotes, borrado/Deshacer, montajes con reloj real de MP4 y reanudación. No ejecutan los modelos neuronales.
 
 ## Uso y ajustes
 
@@ -196,3 +196,20 @@ Código original bajo [MIT](LICENSE). Los modelos y componentes externos conserv
 ## Organización de motores y catálogo
 
 Las instalaciones nuevas agrupan motores en `Data/Engines` y checkpoints, codificadores, VAE y LoRAs en `Data/Models`. Las rutas son configurables y se mantienen las instalaciones anteriores: consulta [estructura e inventario](docs/LOCAL_ASSETS.md). El [catálogo de imágenes](docs/IMAGE_MODELS.md) documenta ocho checkpoints con versión, origen, SHA256, VAE y ajustes; no significa que todos estén instalados o probados. Las [pruebas de sparring de cinco segundos](docs/VIDEO_TUNING.md) recogen parámetros y defectos de movimiento pendientes.
+
+
+La receta **Boxeo · intercambio probado** aplica la configuración local comparada y ofrece suavizado RIFE 2× con el modelo instalado. [Resultados y límites](docs/VIDEO_TUNING.md). El suavizado no certifica anatomía ni contacto profesional.
+
+## Cola y procedencia de la galería
+
+**Detener actual** pausa la cola e interrumpe la generación propia; **Pausar cola** deja terminar el trabajo activo; **Continuar** retoma los pendientes. El elemento interrumpido vuelve a empezar con sus ajustes y semilla; los montajes conservan las escenas terminadas. La pausa persiste al reiniciar. Consulta los [controles, API y límites por motor](docs/QUEUE_CONTROLS.md).
+
+La galería indica el motor y el modelo de cada resultado. Los registros antiguos sin metadatos se identifican explícitamente. Borrar un resultado es inmediato y ofrece **Deshacer** durante 15 segundos.
+
+La [instalación opcional de Forge](docs/FORGE.md) comparte checkpoints, VAE y LoRAs del proyecto. Para instalar únicamente Pony V6 XL, Juggernaut XL v9 y EpicRealism, ejecuta con el Python del entorno local:
+
+```powershell
+python MatrixStudio/install_image_models.py pony_v6_xl juggernaut_xl_v9 epicrealism_natural_sin_rc1_vae
+```
+
+El instalador comprueba tamaño y SHA256 antes de aceptar cada archivo. Las claves exactas disponibles figuran en `python MatrixStudio/install_image_models.py --help`. Las recetas de acción y sus LoRAs son específicas de cada arquitectura; no deben intercambiarse entre Wan 5B y 14B. La suite pública incluye 43 pruebas aisladas.

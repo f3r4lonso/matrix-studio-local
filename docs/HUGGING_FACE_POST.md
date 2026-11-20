@@ -1,25 +1,41 @@
-# Matrix Studio Local: imágenes, vídeo y 3D desde una interfaz local
+# Matrix Studio Local
 
-**[Español](HUGGING_FACE_POST.md) | [English](HUGGING_FACE_POST.en.md)**
+**Español** · Interfaz local con conversaciones y galería para crear imágenes, vídeos y objetos 3D con ComfyUI, Wan 2.2, AnimateDiff y TRELLIS.2. Este Space presenta el proyecto y enlaza la instalación local; los modelos se ejecutan en tu propio equipo.
 
-He preparado Matrix Studio Local, una interfaz web con conversaciones y galería para conectar varios motores de generación en el propio equipo.
+**English** · A local chat and gallery interface for images, video and 3D with ComfyUI, Wan 2.2, AnimateDiff and TRELLIS.2. This Space introduces the project and links to local setup instructions; models run on your own computer.
 
-**Código e instalación:** https://github.com/f3r4lonso/matrix-studio-local
+- [Código / Source](https://github.com/f3r4lonso/matrix-studio-local)
+- [Instalación en español](https://github.com/f3r4lonso/matrix-studio-local/blob/main/README.md)
+- [English installation guide](https://github.com/f3r4lonso/matrix-studio-local/blob/main/README.en.md)
 
-Incluye ComfyUI para imágenes SD/SDXL, Wan 2.2 5B/14B para vídeo desde imagen, AnimateDiff con Motion LoRA y RIFE, y TRELLIS.2 para exportar objetos GLB. También hay adaptadores opcionales para Automatic1111/Forge y Qwen mediante stable-diffusion.cpp.
+Reference hardware: RTX 5060 Laptop (8 GB VRAM), Intel i7-14650HX, 16 GB RAM, Windows 11. This documents a tested configuration, not a guarantee for every model or setting. AI montages of 6 and 10 seconds were tested; 120-second assembly was verified with synthetic scenes, not a full two-minute AI render. Anatomy and body-contact errors remain possible.
 
-Los vídeos pueden montarse por escenas hasta 120 segundos, con un guion por planos, semillas diferentes y recuperación de las escenas completadas si falla un trabajo. Son escenas nuevas con cortes: no un único plano continuo ni un clip repetido en bucle.
+No model weights, private conversations, reference images, or generated outputs are included. Original code is MIT; external components and models retain their own licenses. The screenshot shows an empty session.
 
-La configuración de referencia utiliza una RTX 5060 Laptop de 8 GB, Intel i7-14650HX y 16 GB de RAM, con Windows 11, Python 3.12 y PyTorch CUDA 13.0. El repositorio documenta los commits, paquetes, pesos y hashes necesarios para montar la infraestructura local.
+## Actualización / Update — 2026-11-20
 
-Es importante distinguir funcionamiento y calidad: se generaron montajes IA cortos de 6 y 10 segundos y se verificó la exportación de 120 segundos con pruebas técnicas. No se ha renderizado un vídeo IA completo de dos minutos como validación. Persisten errores de anatomía y contacto entre personas; los ajustes no garantizan una coreografía realista. Un montaje largo puede tardar más de una hora en esta GPU.
+**Español.** Motores centralizados en `Data/Engines`, modelos separados por tipo en `Data/Models` (checkpoints, codificadores, VAE y LoRAs), rutas configurables e inventario local. Se conserva compatibilidad con instalaciones anteriores. El catálogo incluye ocho checkpoints con versión, arquitectura, origen, archivo, SHA256, VAE y ajustes recomendados; catalogado no significa instalado ni probado.
 
-Se publica código, pruebas e instrucciones, sin modelos, conversaciones, referencias ni resultados privados. Los pesos se descargan desde sus distribuidores y mantienen sus propias licencias.
+**English.** Engines now share `Data/Engines`, with model assets organized under `Data/Models` (checkpoints, encoders, VAEs and LoRAs), configurable paths and a local inventory. Previous installation paths remain supported. The catalog documents eight checkpoints with versions, architectures, sources, files, SHA256, VAE information and suggested settings; catalog entries are not all installed or tested.
 
-El objetivo es ofrecer una base local que pueda inspeccionarse y reproducirse, sin depender de una API de generación de pago. La instalación limpia y los límites de validación están explicados en el README.
+- [Organización e inventario / Asset organization](https://github.com/f3r4lonso/matrix-studio-local/blob/main/docs/LOCAL_ASSETS.md)
+- [Catálogo de imágenes / Image model catalog](https://github.com/f3r4lonso/matrix-studio-local/blob/main/docs/IMAGE_MODELS.md)
+- [Catálogo JSON / Machine-readable catalog](https://github.com/f3r4lonso/matrix-studio-local/blob/main/MatrixStudio/image_models.json)
+- [Pruebas de vídeo / Video settings and limitations](https://github.com/f3r4lonso/matrix-studio-local/blob/main/docs/VIDEO_TUNING.md)
 
-## Actualización — 20 de noviembre de 2026
+Se compararon clips de sparring de unos cinco segundos: 14B con LightX2V, cuatro pasos, CFG 1, shift 5 y Euler/simple, frente a 5B con 30 pasos, CFG 5, shift 8 y UniPC/simple. El prompt simplificado mejoró la actividad del 14B para esa referencia y semilla, pero persisten estelas y un número de golpes inexacto. Se inspeccionaron fotogramas muestreados; no se garantiza coreografía fiable.
 
-Los motores se agrupan en `Data/Engines` y los pesos, codificadores, VAE y LoRAs en `Data/Models`. La configuración portable de rutas y el inventario facilitan su administración conservando las instalaciones anteriores. El catálogo de ocho checkpoints incluye versión, arquitectura, origen, SHA256, VAE y ajustes; no todos están instalados o probados.
+Five-second sparring trials compared 14B/LightX2V (four steps, CFG 1, shift 5, Euler/simple) with 5B (30 steps, CFG 5, shift 8, UniPC/simple). A shorter prompt improved activity in the tested 14B scene and seed, while motion trails and imperfect action counts remain. Sampled frames were inspected; reliable choreography is not established.
 
-Las nuevas comparaciones de sparring de cinco segundos favorecieron la configuración 14B de cuatro pasos para esa referencia y semilla, pero aún mostraron estelas y un número de golpes inexacto. No garantizan coreografía fiable. Consulta [gestión de archivos](LOCAL_ASSETS.md), [catálogo de imágenes](IMAGE_MODELS.md) y [parámetros y límites del vídeo](VIDEO_TUNING.md).
+Los pesos y resultados privados permanecen locales. / Model weights and private outputs remain local.
+
+## Controles, galería y Forge / Controls, gallery and Forge
+
+**Español.** La barra de generación permite detener el trabajo activo, pausar la cola y continuar. El elemento interrumpido vuelve a empezar con los mismos parámetros y semilla; los montajes conservan las escenas completas. La pausa persiste al reiniciar. La galería muestra el motor y el modelo de cada resultado. Forge dispone de instalación opcional con los pesos compartidos del proyecto. Se probaron localmente Pony V6 XL, Juggernaut XL v9 y EpicRealism; los pesos se descargan por separado. Pasaron 43 pruebas aisladas y una prueba real de detener y continuar en ComfyUI.
+
+**English.** Generation controls stop the active job, pause the queue and continue pending work. An interrupted item restarts with its saved settings and seed; completed montage scenes are retained. Pause state survives restarts. Gallery cards identify the recorded engine and model. An optional Forge installer shares project weights. Pony V6 XL, Juggernaut XL v9 and EpicRealism were tested locally; weights are downloaded separately. Validation includes 43 isolated tests and a live ComfyUI stop/resume trial.
+
+- [Controles y límites / Queue behavior and limits](https://github.com/f3r4lonso/matrix-studio-local/blob/main/docs/QUEUE_CONTROLS.md)
+- [Instalar Forge / Optional Forge setup](https://github.com/f3r4lonso/matrix-studio-local/blob/main/docs/FORGE.md)
+
+Este Space sigue siendo una presentación estática; la generación y sus controles funcionan en la instalación local. / This remains a static presentation; generation and queue controls run locally.

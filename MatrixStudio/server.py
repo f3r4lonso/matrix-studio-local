@@ -20,6 +20,8 @@ from urllib.parse import urlparse
 import aiohttp
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from runtime_paths import project_asset
+from action_editing import join_action_segments
+from action_profiles import prepare_action, validate_adapters, required_adapters, preset_status, NAMES as ACTION_NAMES
 import av
 from aiohttp import web
 from PIL import Image, ImageOps, UnidentifiedImageError
@@ -47,6 +49,7 @@ DB.executescript('''
 CREATE TABLE IF NOT EXISTS chats (id TEXT PRIMARY KEY, title TEXT, created REAL);
 CREATE TABLE IF NOT EXISTS renders (id TEXT PRIMARY KEY, chat_id TEXT, prompt TEXT,
  params TEXT, status TEXT, detail TEXT, image TEXT, created REAL);
+CREATE TABLE IF NOT EXISTS studio_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 ''')
 DB.commit()
 for table, column in (('chats', 'deleted'), ('renders', 'image_deleted')):
@@ -74,6 +77,183 @@ def rows(sql, args=()):
 def update(rid, **values):
     DB.execute('UPDATE renders SET ' + ','.join(f'{k}=?' for k in values) + ' WHERE id=?', (*values.values(), rid))
     DB.commit()
+
+
+class GenerationStopped(Exception):
+    """A user-requested stop, distinct from a generation failure."""
+
+
+
+def queue_render(app, rid):
+    if rid not in app['queued_ids'] and app.get('active_id') != rid:
+        found = rows('SELECT rowid AS position FROM renders WHERE id=?', (rid,))
+        if found:
+            app['queued_ids'].add(rid)
+            app['queue'].put_nowait((found[0]['position'], rid))
+
+
+
+def pause_generation_queue(app):
+    app['queue_gate'].clear()
+    DB.execute("INSERT OR REPLACE INTO studio_settings (key,value) VALUES ('queue_paused','1')")
+    DB.commit()
+
+
+
+def generation_queue_state(app):
+    counts = {r['status']: r['n'] for r in rows('SELECT status,count(*) AS n FROM renders GROUP BY status')}
+    return {'paused': not app['queue_gate'].is_set(), 'stopping': app.get('stopping', False),
+            'active_id': app.get('active_id'), 'queued': counts.get('queued', 0),
+            'paused_jobs': counts.get('paused', 0), 'error': app.get('queue_error', '')}
+
+
+
+async def queue_status(request):
+    return web.json_response(generation_queue_state(request.app))
+
+
+
+async def queue_pause(request):
+    pause_generation_queue(request.app)
+    request.app['queue_error'] = ''
+    return web.json_response(generation_queue_state(request.app))
+
+
+
+async def backend_command(app, url, payload):
+    async with app['session'].post(url, json=payload, allow_redirects=False,
+                                  timeout=aiohttp.ClientTimeout(total=15)) as response:
+        if response.status != 200:
+            raise ValueError(f'El motor rechazó detener la tarea: HTTP {response.status}')
+        await response.read()
+
+
+
+async def stop_owned_comfy(app, execution):
+    url = execution['url']
+    pid, client = execution.get('prompt_id'), execution['client_id']
+    for attempt in range(240):
+        queue = await api(app['session'], url + '/queue')
+        def owned(item):
+            return item[1] == pid if pid else item[3].get('client_id') == client
+        pending = [item[1] for item in queue['queue_pending'] if owned(item)]
+        running = [item[1] for item in queue['queue_running'] if owned(item)]
+        if pending:
+            await backend_command(app, url + '/queue', {'delete': pending})
+        if running and attempt == 0:
+            # Recent ComfyUI verifies this ID again inside its interrupt endpoint.
+            await backend_command(app, url + '/interrupt', {'prompt_id': running[0]})
+        if not pending and not running:
+            return
+        # A formerly pending task may have started between inspection and removal.
+        if running and attempt > 0:
+            await backend_command(app, url + '/interrupt', {'prompt_id': running[0]})
+        await asyncio.sleep(0.25)
+    raise ValueError('ComfyUI todavía no ha confirmado la detención; la cola permanece pausada.')
+
+
+
+async def stop_owned_automatic(app, execution):
+    # A1111/Forge's public interrupt is global: first verify our force_task_id.
+    # Engines without task-level progress are allowed to finish; never guess ownership.
+    interrupted = False
+    for attempt in range(240):
+        request_task = execution.get('request_task')
+        if request_task is not None and request_task.done():
+            return
+        state = await api(app['session'], execution['url'] + '/internal/progress',
+                          {'id_task': execution['task_id'], 'live_preview': False})
+        if state.get('completed'):
+            return
+        if state.get('active') and not interrupted:
+            await backend_command(app, execution['url'] + '/sdapi/v1/interrupt', {})
+            interrupted = True
+        if not state.get('active') and not state.get('queued') and attempt > 40 and not interrupted:
+            raise ValueError('El motor no permite identificar esta tarea para detenerla de forma selectiva. La cola está pausada.')
+        await asyncio.sleep(0.25)
+    raise ValueError('Forge todavía no ha confirmado la detención; la cola permanece pausada.')
+
+
+
+async def stop_active_generation(app):
+    task = app.get('render_task')
+    rid = app.get('active_id')
+    try:
+        async with app['backend_submission_lock']:
+            execution = app.get('execution')
+            if execution and execution['engine'] == 'comfy':
+                await stop_owned_comfy(app, execution)
+            elif execution and execution['engine'] == 'automatic':
+                await stop_owned_automatic(app, execution)
+        if task and not task.done():
+            task.cancel()
+        if task:
+            await asyncio.gather(task, return_exceptions=True)
+            while app.get('active_id') == rid and app.get('render_task') is task:
+                await asyncio.sleep(0)
+    except Exception as exc:
+        app['queue_error'] = str(exc)
+        app['stop_requested'] = None
+    finally:
+        app['stopping'] = False
+
+
+
+async def run_thread_safely(function, *args):
+    task = asyncio.create_task(asyncio.to_thread(function, *args))
+    try:
+        return await asyncio.shield(task)
+    except asyncio.CancelledError:
+        await task
+        raise
+
+
+
+async def queue_resume(request):
+    app = request.app
+    if app.get('stopping'):
+        raise ValueError('Espera a que el motor confirme la detención antes de continuar.')
+    for row in rows("SELECT id FROM renders WHERE status='paused' ORDER BY created,id"):
+        update(row['id'], status='queued', detail='En cola para continuar con la misma semilla')
+        queue_render(app, row['id'])
+    DB.execute("INSERT OR REPLACE INTO studio_settings (key,value) VALUES ('queue_paused','0')")
+    DB.commit()
+    app['stop_requested'] = None
+    app['queue_error'] = ''
+    app['stop_requested'] = None
+    app['queue_error'] = ''
+    app['queue_gate'].set()
+    return web.json_response(generation_queue_state(app))
+
+
+
+async def queue_stop(request):
+    app = request.app
+    pause_generation_queue(app)
+    if app.get('active_id') and not app.get('stopping'):
+        app['stop_requested'] = app['active_id']
+        app['stopping'] = True
+        app['queue_error'] = ''
+        update(app['active_id'], detail='Deteniendo la generación; se conservará la cola…')
+        app['stop_control_task'] = asyncio.create_task(stop_active_generation(app))
+    return web.json_response(generation_queue_state(app))
+
+
+
+async def render_automatic(app, row, p):
+    payload = {k: p[k] for k in ('width', 'height', 'steps', 'seed')}
+    payload.update(prompt=row['prompt'], negative_prompt=p['negative'], cfg_scale=p['cfg'], batch_size=1,
+                   force_task_id='task(matrix-' + row['id'] + ')')
+    if p['model']:
+        payload['override_settings'] = {'sd_model_checkpoint': p['model']}
+    execution = {'engine': 'automatic', 'url': CONFIG['automatic'], 'task_id': payload['force_task_id']}
+    app['execution'] = execution
+    if app.get('stop_requested') == row['id']:
+        raise GenerationStopped()
+    execution['request_task'] = asyncio.create_task(api(app['session'], execution['url'] + '/sdapi/v1/txt2img', payload, timeout=3600))
+    result = await execution['request_task']
+    return base64.b64decode(result['images'][0].split(',')[-1])
+
 
 
 def local_url(value):
@@ -230,7 +410,7 @@ async def generate(request):
                 (rid, cid, prompt, json.dumps(params), 'queued', f'En cola · imagen {i + 1} de {count}', None, time.time()))
             ids.append(rid)
     for rid in ids:
-        request.app['queue'].put_nowait(rid)
+        queue_render(request.app, rid)
     return web.json_response({'id': ids[0], 'ids': ids, 'chat': cid, 'count': count})
 
 
@@ -253,10 +433,17 @@ async def video_status(request):
         target = ROOT / 'Data/Models' / model['folder'] / Path(model['file']).name
         partial = target.with_suffix(target.suffix + '.part')
         models.append({'name': target.name, 'ready': target.exists(), 'downloaded': partial.stat().st_size if partial.exists() else 0})
-    ready14 = all(m['ready'] for m in models)
-    ready5 = all((ROOT / 'Data/Models' / m['folder'] / Path(m['file']).name).is_file() for m in WAN5B_MODELS) and models[2]['ready']
+    ready14 = all(item['ready'] for item, spec in zip(models, WAN_MODELS) if not spec['key'].startswith('lora_'))
+    fast14 = ready14 and all(item['ready'] for item, spec in zip(models, WAN_MODELS) if spec['key'].startswith('lora_'))
+    ready5 = all((ROOT / 'Data/Models' / m['folder'] / Path(m['file']).name).is_file() for m in WAN5B_MODELS + [m for m in WAN_MODELS if m['key'] == 'text'])
+    interpolation_ready = (ROOT / 'Data/Models/FrameInterpolation' / ANIMATEDIFF_NAMES['interpolation']).is_file()
+    presets = preset_status(ROOT)
+    for preset in presets:
+        preset['ready'] = preset['ready'] and (ready5 if preset['settings']['family'] == 'wan5b' else ready14)
+        if preset['settings'].get('interpolation', 1) > 1:
+            preset['ready'] = preset['ready'] and interpolation_ready
     return web.json_response({'ready': ready14 or ready5, 'models': models, 'default_family': 'wan5b' if ready5 else 'wan14b',
-        'families': [{'id': 'wan5b', 'ready': ready5}, {'id': 'wan14b', 'ready': ready14}]})
+        'presets': presets, 'interpolation_ready': interpolation_ready, 'families': [{'id': 'wan5b', 'ready': ready5}, {'id': 'wan14b', 'ready': ready14, 'fast_ready': fast14}]})
 
 
 async def video_input(request):
@@ -295,7 +482,7 @@ def resolve_input(data):
 
 
 async def generate_video(request):
-    data = await request.json()
+    data = prepare_action(await request.json())
     prompt = str(data.get('prompt', '')).strip()
     if not prompt or len(prompt) > 12000:
         raise ValueError('Describe el movimiento del vídeo (hasta 12000 caracteres).')
@@ -312,8 +499,14 @@ async def generate_video(request):
          'width': int(data.get('width', 640)), 'height': int(data.get('height', 384)),
          'frames': int(data.get('frames', 121 if family == 'wan5b' else 81)), 'fps': 24 if family == 'wan5b' else 16, 'profile': profile, 'steps': steps,
          'cfg': 5.0 if family == 'wan5b' else 1.0 if profile == 'fast' else 3.5,
-         'shift': 5.0 if family == 'wan5b' else 5.0 if profile == 'fast' else 3.0,
+         'shift': 8.0 if family == 'wan5b' else 5.0 if profile == 'fast' else 3.0,
          'negative': str(data.get('negative', 'blurry, static, distorted, low quality')), 'seed': int(data.get('seed', -1))}
+    p.update({key: data.get(key, default) for key, default in (('preset', 'manual'), ('adapter', 'none'), ('action_lora', 'none'), ('action_strength', 1))})
+    p['action_strength'] = validate_adapters(p)
+    p['interpolation'] = data.get('interpolation', 1)
+    if type(p['interpolation']) is not int or p['interpolation'] not in (1, 2):
+        raise ValueError('Suavizado RIFE: elige 1 o 2.')
+    p['vae_decode'] = 'spatial_only_full_time' if p['width'] * p['height'] > 512 * 512 else 'native'
     for key, cast in (('steps', int), ('cfg', float), ('shift', float)):
         if key in data:
             value = cast(data[key])
@@ -329,12 +522,89 @@ async def generate_video(request):
         raise ValueError('La semilla debe estar entre -1 y 2147483647.')
     if family == 'wan5b' and any(p[k] % 32 for k in ('width', 'height')):
         raise ValueError('Wan 5B necesita dimensiones múltiplos de 32.')
-    required = WAN5B_MODELS + [m for m in WAN_MODELS if m['key'] == 'text'] if family == 'wan5b' else WAN_MODELS
+    required = WAN5B_MODELS + [m for m in WAN_MODELS if m['key'] == 'text'] if family == 'wan5b' else [m for m in WAN_MODELS if not m['key'].startswith('lora_')]
+    if family == 'wan14b' and profile == 'fast' and p['adapter'] == 'none':
+        required += [m for m in WAN_MODELS if m['key'].startswith('lora_')]
+    required += required_adapters(p)
+    if p['interpolation'] > 1:
+        required += [m for m in ANIMATEDIFF_MODELS if m['key'] == 'interpolation']
     missing = [m['file'] for m in required if not (ROOT / 'Data/Models' / m['folder'] / Path(m['file']).name).exists()]
     if missing:
         raise ValueError('Los modelos de vídeo todavía se están instalando: ' + ', '.join(missing))
     configure_montage(p, data)
     return enqueue_video_batch(request.app, prompt, p, 'Vídeo', data.get('count', 1))
+
+
+def completed_action_source(rid):
+    if not isinstance(rid, str) or len(rid) != 32 or any(c not in '0123456789abcdef' for c in rid):
+        raise ValueError('Selecciona un vídeo local terminado.')
+    found = rows('SELECT * FROM renders WHERE id=? AND status=? AND image_deleted=0', (rid, 'done'))
+    if not found:
+        raise ValueError('El vídeo original ya no está disponible.')
+    row = found[0]
+    p = json.loads(row['params'])
+    if p.get('kind') != 'video' or p.get('family') not in ('wan14b','wan5b') or p.get('backend') in ('animatediff', 'action_edit') or p.get('duration_seconds') or (p.get('frames'), p.get('fps')) not in ((81,16),(121,24)):
+        raise ValueError('Usa un clip Wan completo de cinco segundos, sin montaje previo.')
+    path = OUTPUT / (rid + '.mp4')
+    if not path.is_file():
+        raise ValueError('No se encuentra el archivo del vídeo original.')
+    return row, p, path
+
+
+
+def last_action_frame(path):
+    last = None
+    with av.open(str(path)) as container:
+        for frame in container.decode(video=0):
+            last = frame.to_image()
+    if last is None:
+        raise ValueError('El vídeo no contiene fotogramas utilizables.')
+    return last.convert('RGB')
+
+
+
+async def continue_action(request):
+    data = await request.json()
+    source, params, path = completed_action_source(data.get('source_id'))
+    prompt = str(data.get('prompt', "The blue boxer immediately snaps his extended fist back to his chin. The red boxer parries, throws a short sharp jab and a straight right into the blue boxer's raised gloves. Blue blocks, quickly counters once and retracts his fist to guard. Brief glove impacts, fast full extension and immediate retraction, realistic trained boxing, natural shoulder rotation, distinct arms and gloves. Both adult fighters keep facing each other, steady side-on close two-shot, continuous action, unchanged gym and lighting, realistic live-action film footage.")).strip()
+    if not prompt or len(prompt) > 12000:
+        raise ValueError('Describe la continuación, hasta 12000 caracteres.')
+    name = uuid.uuid4().hex + '.png'
+    image = await asyncio.to_thread(last_action_frame, path)
+    await asyncio.to_thread(image.save, INPUTS / name)
+    params = {**params, 'input_image': name, 'continuation_of': source['id'],
+              'seed': (params['seed'] + 1) % 2147483648, 'selected_action': False}
+    return enqueue_video_batch(request.app, prompt, params, 'Continuación', 1)
+
+
+
+async def assemble_action(request):
+    data = await request.json()
+    first, params, first_path = completed_action_source(data.get('first_id'))
+    second, next_params, second_path = completed_action_source(data.get('second_id'))
+    fields = ('family', 'width', 'height', 'frames', 'fps', 'interpolation')
+    if next_params.get('continuation_of') != first['id'] or any(params.get(k, 1 if k == 'interpolation' else None) != next_params.get(k, 1 if k == 'interpolation' else None) for k in fields):
+        raise ValueError('El segundo vídeo debe ser una continuación compatible del primero.')
+    name = next_params.get('input_image', '')
+    if not name or Path(name).name != name or not (INPUTS / name).is_file():
+        raise ValueError('No se encuentra la referencia de la continuación.')
+    last = await asyncio.to_thread(last_action_frame, first_path)
+    with Image.open(INPUTS / name) as reference:
+        if reference.convert('RGB').tobytes() != last.tobytes() or reference.size != last.size:
+            raise ValueError('La continuación debe partir del último fotograma del primer vídeo.')
+    content = await asyncio.to_thread(join_action_segments, first_path.read_bytes(), second_path.read_bytes(), params)
+    rid, cid, created = uuid.uuid4().hex, uuid.uuid4().hex, time.time()
+    filename = rid + '.mp4'
+    await asyncio.to_thread((OUTPUT / filename).write_bytes, content)
+    p = {**params, 'backend': 'action_edit', 'frames': params['frames']*2-1,
+         'fps': params['fps']*2, 'interpolation': 1, 'playback_speed': 2,
+         'source_ids': [first['id'], second['id']], 'selected_action': True}
+    with DB:
+        DB.execute('INSERT INTO chats (id,title,created) VALUES (?,?,?)', (cid, 'Boxeo · montaje 2×', created))
+        DB.execute('INSERT INTO renders (id,chat_id,prompt,params,status,detail,image,created) VALUES (?,?,?,?,?,?,?,?)',
+            (rid,cid,first['prompt'],json.dumps(p),'done','Dos tramos enlazados y reproducidos a 2×','/outputs/'+filename,created))
+    return web.json_response({'id':rid,'chat':cid,'image':'/outputs/'+filename})
+
 
 
 def enqueue_video_batch(app, prompt, params, title, count):
@@ -352,7 +622,7 @@ def enqueue_video_batch(app, prompt, params, title, count):
                 (rid, cid, prompt, json.dumps(p), 'queued', f'Vídeo {index} de {count} en cola', None, time.time()))
             ids.append(rid)
     for rid in ids:
-        app['queue'].put_nowait(rid)
+        queue_render(app, rid)
     return web.json_response({'id': ids[0], 'ids': ids, 'chat': cid, 'count': count})
 
 
@@ -433,13 +703,15 @@ async def render_montage(app, row, params):
                 part = {**params, 'seed': (params['seed'] + index) % 2147483648, 'progress_prefix': prefix}
                 update(row['id'], detail=prefix + 'Preparando generación local')
                 content = await render_comfy(app, {**dict(row), 'prompt': prompt}, part)
-            update(row['id'], detail=prefix + 'Montando vídeo')
-            await asyncio.to_thread(encoder.append, content)
             if not clip.is_file():
-                temporary = clip.with_suffix('.part')
-                await asyncio.to_thread(temporary.write_bytes, content)
-                temporary.replace(clip)
-        await asyncio.to_thread(encoder.finish)
+                def save_scene():
+                    temporary = clip.with_suffix('.part')
+                    temporary.write_bytes(content)
+                    temporary.replace(clip)
+                await run_thread_safely(save_scene)
+            update(row['id'], detail=prefix + 'Montando vídeo')
+            await run_thread_safely(encoder.append, content)
+        await run_thread_safely(encoder.finish)
     except BaseException:
         encoder.container.close()
         raise
@@ -451,7 +723,7 @@ async def resume_montage(request):
     if not found or found[0]['status'] != 'error' or not json.loads(found[0]['params']).get('duration_seconds'):
         raise ValueError('Solo puedes reanudar un montaje que haya terminado con un error.')
     update(found[0]['id'], status='queued', detail='Montaje en cola para reanudar')
-    request.app['queue'].put_nowait(found[0]['id'])
+    queue_render(request.app, found[0]['id'])
     return web.json_response({'id': found[0]['id']})
 
 
@@ -484,7 +756,7 @@ async def generate_mesh(request):
         DB.execute('INSERT INTO chats (id,title,created) VALUES (?,?,?)', (cid, '3D · ' + title[:45], time.time()))
         DB.execute('INSERT INTO renders (id,chat_id,prompt,params,status,detail,image,created) VALUES (?,?,?,?,?,?,?,?)',
                    (rid, cid, title, json.dumps(p), 'queued', 'Modelo 3D en cola', None, time.time()))
-    request.app['queue'].put_nowait(rid)
+    queue_render(request.app, rid)
     return web.json_response({'id': rid, 'chat': cid})
 
 
@@ -701,11 +973,27 @@ def animatediff_workflow(p, prompt, image_name=None):
     return graph
 
 
+def smooth_wan_video(graph, p):
+    if p.get('interpolation', 1) > 1:
+        graph['interpolation_model'] = {'class_type': 'FrameInterpolationModelLoader', 'inputs': {
+            'model_name': ANIMATEDIFF_NAMES['interpolation']}}
+        graph['interpolate'] = {'class_type': 'FrameInterpolate', 'inputs': {
+            'interp_model': ['interpolation_model', 0], 'images': ['decode', 0], 'multiplier': p['interpolation']}}
+        graph['video']['inputs'].update(images=['interpolate', 0], fps=p['fps'] * p['interpolation'])
+    return graph
+
+
+
 def video_workflow(p, prompt, image_name):
     def node(kind, **inputs):
         return {'class_type': kind, 'inputs': inputs}
+    def decode(samples):
+        if p['width'] * p['height'] > 512 * 512:
+            return node('VAEDecodeTiled', samples=samples, vae=['vae', 0], tile_size=256,
+                overlap=64, temporal_size=128, temporal_overlap=8)
+        return node('VAEDecode', samples=samples, vae=['vae', 0])
     if p.get('family') == 'wan5b':
-        return {
+        graph = {
             'image': node('LoadImage', image=image_name),
             'text': node('CLIPLoaderGGUF', clip_name=WAN_NAMES['text'], type='wan'),
             'positive': node('CLIPTextEncode', text=prompt, clip=['text', 0]),
@@ -718,10 +1006,14 @@ def video_workflow(p, prompt, image_name):
             'sample': node('KSampler', model=['shift', 0], positive=['positive', 0], negative=['negative', 0],
                            latent_image=['latent', 0], seed=p['seed'], steps=p['steps'], cfg=p['cfg'],
                            sampler_name='uni_pc', scheduler='simple', denoise=1.0),
-            'decode': node('VAEDecodeTiled', samples=['sample', 0], vae=['vae', 0], tile_size=256, overlap=64, temporal_size=16, temporal_overlap=4),
+            'decode': decode(['sample', 0]),
             'video': node('CreateVideo', images=['decode', 0], fps=p['fps']),
             'save': node('SaveVideo', video=['video', 0], filename_prefix='MatrixStudio/wan5b', format='mp4', **{'format.codec': 'h264'}),
         }
+        if p.get('action_lora') == 'punch':
+            graph['action_lora'] = node('LoraLoaderModelOnly', model=['model', 0], lora_name=ACTION_NAMES['punch'], strength_model=p.get('action_strength', 1))
+            graph['shift']['inputs']['model'] = ['action_lora', 0]
+        return smooth_wan_video(graph, p)
     graph = {
         'image': node('LoadImage', image=image_name),
         'text': node('CLIPLoaderGGUF', clip_name=WAN_NAMES['text'], type='wan'),
@@ -735,8 +1027,11 @@ def video_workflow(p, prompt, image_name):
         graph[phase] = node('UnetLoaderGGUF', unet_name=WAN_NAMES[phase])
         model = [phase, 0]
         if p.get('profile', 'fast') == 'fast':
-            graph[phase + '_lora'] = node('LoraLoaderModelOnly', model=model, lora_name=WAN_NAMES['lora_' + phase], strength_model=1.0)
+            graph[phase + '_lora'] = node('LoraLoaderModelOnly', model=model, lora_name=ACTION_NAMES['motion_fix_' + phase] if p.get('adapter') == 'motion_fix' else WAN_NAMES['lora_' + phase], strength_model=1.0)
             model = [phase + '_lora', 0]
+        if p.get('action_lora') == 'kungfu':
+            graph[phase + '_action'] = node('LoraLoaderModelOnly', model=model, lora_name=ACTION_NAMES['kungfu_' + phase], strength_model=p.get('action_strength', .8))
+            model = [phase + '_action', 0]
         graph[phase + '_shift'] = node('ModelSamplingSD3', model=model, shift=p.get('shift', 5.0))
     steps, shift = p.get('steps', 4), p.get('shift', 5.0)
     split = min(steps - 1, max(1, math.ceil(round(steps * (1 - 0.9 / (shift - (shift - 1) * 0.9)), 10))))
@@ -746,15 +1041,16 @@ def video_workflow(p, prompt, image_name):
             sampler_name='euler' if p.get('profile', 'fast') == 'fast' else 'uni_pc', scheduler='simple', positive=['conditioning', 0], negative=['conditioning', 1],
             latent_image=['conditioning', 2] if phase == 'high' else ['high_sample', 0], start_at_step=start,
             end_at_step=end, return_with_leftover_noise='enable' if phase == 'high' else 'disable')
-    graph['decode'] = node('VAEDecodeTiled', samples=['low_sample', 0], vae=['vae', 0], tile_size=256, overlap=64, temporal_size=16, temporal_overlap=4)
+    graph['decode'] = decode(['low_sample', 0])
     graph['video'] = node('CreateVideo', images=['decode', 0], fps=p['fps'])
     graph['save'] = node('SaveVideo', video=['video', 0], filename_prefix='MatrixStudio/video', format='mp4', **{'format.codec': 'h264'})
-    return graph
+    return smooth_wan_video(graph, p)
 
 
 async def render_comfy(app, row, p):
     session, url = app['session'], CONFIG['comfy']
     cid = uuid.uuid4().hex
+    app['execution'] = {'engine': 'comfy', 'url': url, 'client_id': cid, 'prompt_id': None}
     is_video = p.get('kind') == 'video'
     is_mesh = p.get('kind') == 'mesh'
     is_animatediff = p.get('backend') == 'animatediff'
@@ -772,9 +1068,19 @@ async def render_comfy(app, row, p):
         graph = animatediff_workflow(p, row['prompt'], image_name) if is_animatediff else mesh_workflow(p, image_name) if is_mesh else video_workflow(p, row['prompt'], image_name)
     else:
         graph = workflow(p, row['prompt'])
+    if is_video and not is_animatediff:
+        samples = ['sample', 0] if p.get('family') == 'wan5b' else ['low_sample', 0]
+        graph['latent_archive'] = {'class_type': 'SaveLatent', 'inputs': {
+            'samples': samples, 'filename_prefix': 'MatrixStudio/latents/' + row['id']}}
+        # Save before decoding, so a VRAM failure never discards an expensive sample.
+        graph['decode']['inputs']['samples'] = ['latent_archive', 0]
     async with session.ws_connect(url + '/ws?clientId=' + cid, timeout=10) as ws:
-        result = await api(session, url + '/prompt', {'prompt': graph, 'client_id': cid})
-        pid = result['prompt_id']
+        async with app['backend_submission_lock']:
+            if app.get('stop_requested') == row['id']:
+                raise GenerationStopped()
+            result = await api(session, url + '/prompt', {'prompt': graph, 'client_id': cid})
+            pid = result['prompt_id']
+            app['execution']['prompt_id'] = pid
         current_node = None
         async with asyncio.timeout(7200 if is_video or is_mesh else 3600):
             async for msg in ws:
@@ -846,8 +1152,11 @@ async def render_qwen(app, row, p):
     if p['steps'] == 8:
         args += ['--sigmas', '1.0,0.978453,0.95418,0.926626,0.89508,0.845148,0.704534,0.414568,0.0']
     with open(OUTPUT / (row['id'] + '.log'), 'w', encoding='utf-8') as log:
-        proc = await asyncio.create_subprocess_exec(*args, env=env, cwd=QWEN, stdout=log, stderr=log)
-        app['qwen_process'] = proc
+        async with app['backend_submission_lock']:
+            if app.get('stop_requested') == row['id']:
+                raise GenerationStopped()
+            proc = await asyncio.create_subprocess_exec(*args, env=env, cwd=QWEN, stdout=log, stderr=log)
+            app['qwen_process'] = proc
         try:
             async with asyncio.timeout(3600):
                 code = await proc.wait()
@@ -863,40 +1172,83 @@ async def render_qwen(app, row, p):
 
 async def worker(app):
     while True:
-        rid = await app['queue'].get()
-        row = rows('SELECT * FROM renders WHERE id=?', (rid,))[0]
-        p = json.loads(row['params'])
-        update(rid, status='running', detail='Cargando modelo y generando…')
+        await app['queue_gate'].wait()
+        _, rid = await app['queue'].get()
         try:
+            await app['queue_gate'].wait()
+            app['queued_ids'].discard(rid)
+            found = rows('SELECT * FROM renders WHERE id=?', (rid,))
+            if not found or found[0]['status'] != 'queued':
+                continue
+            row = found[0]
+            p = json.loads(row['params'])
+            app['active_id'] = rid
+            app['execution'] = None
+            update(rid, status='running', detail='Cargando modelo y generando…')
             if p['engine'] == 'comfy':
-                content = await render_montage(app, row, p) if p.get('duration_seconds') else await render_comfy(app, row, p)
+                operation = render_montage(app, row, p) if p.get('duration_seconds') else render_comfy(app, row, p)
             elif p['engine'] == 'qwen':
-                content = await render_qwen(app, row, p)
+                operation = render_qwen(app, row, p)
             else:
-                payload = {k: p[k] for k in ('width', 'height', 'steps', 'seed')}
-                payload.update(prompt=row['prompt'], negative_prompt=p['negative'], cfg_scale=p['cfg'], batch_size=1)
-                if p['model']:
-                    payload['override_settings'] = {'sd_model_checkpoint': p['model']}
-                result = await api(app['session'], CONFIG['automatic'] + '/sdapi/v1/txt2img', payload, timeout=3600)
-                content = base64.b64decode(result['images'][0].split(',')[-1])
+                operation = render_automatic(app, row, p)
+            app['render_task'] = asyncio.create_task(operation)
+            content = await app['render_task']
+            if app.get('stop_requested') == rid:
+                raise GenerationStopped()
             filename = rid + {'video': '.mp4', 'mesh': '.glb'}.get(p.get('kind'), '.png')
             (OUTPUT / filename).write_bytes(content)
             update(rid, status='done', image='/outputs/' + filename, detail={'video': 'Vídeo listo', 'mesh': 'Modelo 3D listo'}.get(p.get('kind'), 'Imagen lista'))
         except asyncio.CancelledError:
-            raise
+            if app.get('active_id') == rid:
+                update(rid, status='paused', detail='Generación detenida. Continuar vuelve a intentar el elemento o escena con la misma semilla.')
+            if asyncio.current_task().cancelling():
+                raise
         except Exception as exc:
-            update(rid, status='error', detail=str(exc) or 'No se pudo conectar con el motor. Inícialo desde Motores.')
+            if isinstance(exc, GenerationStopped) or app.get('stop_requested') == rid:
+                update(rid, status='paused', detail='Generación detenida. Los resultados terminados se conservan; pulsa Continuar.')
+            else:
+                update(rid, status='error', detail=str(exc) or 'No se pudo conectar con el motor. Inícialo desde Motores.')
         finally:
+            app['queued_ids'].discard(rid)
+            app['active_id'] = None
+            app['execution'] = None
+            app['render_task'] = None
             app['queue'].task_done()
 
 
 async def lifecycle(app):
-    DB.execute("UPDATE renders SET status='error', detail='El servidor se reinició. Puedes volver a generar.' WHERE status IN ('queued','running')")
+    recovered = rows("SELECT id FROM renders WHERE status='running'")
+    DB.execute("UPDATE renders SET status='paused', detail='Generación interrumpida al cerrar el servidor. Pulsa Continuar para volver a intentarla.' WHERE status='running'")
+    if recovered:
+        DB.execute("INSERT OR REPLACE INTO studio_settings (key,value) VALUES ('queue_paused','1')")
     DB.commit()
     app['session'] = aiohttp.ClientSession()
-    app['queue'] = asyncio.Queue()
+    app['queue'] = asyncio.PriorityQueue()
+    app['queued_ids'] = set()
+    app['queue_gate'] = asyncio.Event()
+    app['backend_submission_lock'] = asyncio.Lock()
+    app['active_id'] = None
+    app['render_task'] = None
+    app['execution'] = None
+    app['stopping'] = False
+    app['stop_requested'] = None
+    app['queue_error'] = ''
+    paused = rows("SELECT value FROM studio_settings WHERE key='queue_paused'")
+    if not paused or paused[0]['value'] != '1':
+        app['queue_gate'].set()
+    for row in rows("SELECT id FROM renders WHERE status='queued' ORDER BY created,id"):
+        queue_render(app, row['id'])
     task = asyncio.create_task(worker(app))
     yield
+    if app.get('active_id') or app['queued_ids']:
+        pause_generation_queue(app)
+    if app.get('active_id'):
+        app['stop_requested'] = app['active_id']
+        stop = app.get('stop_control_task')
+        if stop and not stop.done():
+            await stop
+        else:
+            await stop_active_generation(app)
     task.cancel()
     await asyncio.gather(task, return_exceptions=True)
     await app['session'].close()
@@ -915,6 +1267,10 @@ def create_app():
     app = web.Application(middlewares=[boundary], client_max_size=21 * 1024 * 1024)
     app.cleanup_ctx.append(lifecycle)
     app.router.add_get('/', index)
+    app.router.add_get('/api/queue/status', queue_status)
+    app.router.add_post('/api/queue/pause', queue_pause)
+    app.router.add_post('/api/queue/resume', queue_resume)
+    app.router.add_post('/api/queue/stop', queue_stop)
     app.router.add_get('/api/engines', engines)
     app.router.add_post('/api/settings', settings)
     app.router.add_post('/api/engines/comfy/start', boot_comfy)
@@ -925,6 +1281,8 @@ def create_app():
     app.router.add_get('/api/video/status', video_status)
     app.router.add_post('/api/video/input', video_input)
     app.router.add_post('/api/video/generate', generate_video)
+    app.router.add_post('/api/video/continue', continue_action)
+    app.router.add_post('/api/video/assemble', assemble_action)
     app.router.add_get('/api/3d/status', mesh_status)
     app.router.add_post('/api/3d/input', video_input)
     app.router.add_post('/api/3d/generate', generate_mesh)

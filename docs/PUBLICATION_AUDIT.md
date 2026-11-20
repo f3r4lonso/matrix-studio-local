@@ -24,3 +24,23 @@ La revisión se limita a los archivos publicados y las comprobaciones indicadas.
 - La copia pública arrancó en un puerto independiente con datos temporales, cero conversaciones y cero resultados.
 - La revisión automática de privacidad incluye la lista privada de identificadores. Los pesos, DLL, motores instalados, referencias y resultados de pruebas permanecen fuera de la publicación.
 - Las observaciones de vídeo se documentan con parámetros y límites de inspección; no se presentan como garantía de coreografía ni se afirma haber probado todos los modelos del catálogo.
+
+## Revisión local de los presets de acción
+
+- Se prepararon presets con adaptadores por arquitectura, prompts de referencia y movimiento, comprobación de componentes y descargas fijadas por revisión y SHA256.
+- Se sustituyó la decodificación temporal adicional de Wan por `VAEDecode` nativo y se añadió el archivo de latentes para comparar decodificadores.
+- Pasaron 28 pruebas aisladas de la copia publicable y el análisis automático de privacidad de 66 archivos.
+- Esta revisión de código no certifica calidad profesional del vídeo. Las referencias y resultados de los experimentos permanecen locales.
+
+
+- Verificación posterior: 29 pruebas aisladas, RIFE opcional para Wan, duración real mayor de cinco segundos y preservación de fotogramas base. La teselación espacial mantiene el intervalo temporal completo; el archivo del latente precede al VAE. Los resultados privados no se añaden a Git.
+
+- Validación final: 33 pruebas de la copia publicable, incluidas continuación desde el último fotograma, rechazo de referencias incompatibles y montaje con duración real mayor de cinco segundos. Se mantiene la separación entre resultados privados y fuentes publicables.
+
+## Controles de cola, galería y Forge — 20 de noviembre de 2026
+
+Se añadieron diez pruebas de cola, incluyendo recuperación tras reinicio, reanudación sin duplicados, errores de interrupción, solicitudes propias ComfyUI, seguimiento de tareas Forge y limpieza del proceso Qwen. Pasaron 43 pruebas en la copia publicable y 40 en la instalación de trabajo. La validación real ComfyUI detuvo y reanudó una generación, mantuvo el trabajo siguiente y conservó sus semillas. Una solicitud pendiente propia se retiró sin detener un vídeo ajeno.
+
+La galería utiliza los metadatos guardados para mostrar motor y modelo, con escape HTML y valores explícitos cuando faltan datos históricos. Se revisaron la sintaxis JavaScript y los lanzadores PowerShell. El perfil opcional Forge conserva un entorno independiente y no distribuye motores instalados ni pesos. La revisión automática de privacidad se ejecuta de nuevo antes de publicar; los resultados de pruebas, la base de datos y la configuración privada de redirección permanecen locales.
+
+La revisión final abarcó 77 archivos publicables sin coincidencias de identificadores privados ni credenciales. Se validó la sintaxis JavaScript de ambas copias, las etiquetas de los tres motores y la compatibilidad con metadatos ausentes, además de la sintaxis y el plan sin escrituras del instalador Forge.

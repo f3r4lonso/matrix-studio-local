@@ -1,5 +1,5 @@
 {
-  "release": "centralized-assets-2026-11-20",
+  "release": "queue-controls-gallery-provenance-forge-2026-11-20",
   "hash_basis": "Canonical Git blobs; text is normalized to LF. Working-tree EOL may differ.",
   "files": [
     {
@@ -9,8 +9,13 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 497,
-      "sha256": "538ce8893615eb9ba074d30f5ce47e76147544fb486a9c13126b722f19d05aa3"
+      "bytes": 538,
+      "sha256": "1aaceed78671375e2f9b9952cf0ad7564a5358ee59579212c7c70e3d7b56f23a"
+    },
+    {
+      "path": "Abrir Forge.cmd",
+      "bytes": 140,
+      "sha256": "2527999bdd6fa741a198adbf8b728786628f3e3e39bba326c3a7a1337414934e"
     },
     {
       "path": "Abrir Matrix Studio.cmd",
@@ -24,8 +29,28 @@
     },
     {
       "path": "MatrixStudio/README.md",
-      "bytes": 357,
-      "sha256": "cc2febb1c086fc3c70152c230db65acbe247d42576f856b9225255efe6feed4e"
+      "bytes": 1116,
+      "sha256": "64fbc8fa92103c551b9872eb7d051614e8cae204aebdeb890128dd343d25d5ae"
+    },
+    {
+      "path": "MatrixStudio/action_adapters.json",
+      "bytes": 1805,
+      "sha256": "d65a793bf7108ce9170186effc766cbc155f0815026273b165ff659a77272057"
+    },
+    {
+      "path": "MatrixStudio/action_editing.py",
+      "bytes": 2229,
+      "sha256": "5360c9a4e04583e0a0bbb5bd88c16b557baa670040865287abaab80198c5a6a1"
+    },
+    {
+      "path": "MatrixStudio/action_presets.json",
+      "bytes": 6023,
+      "sha256": "8dd4a146ff9339cb436176a33a15d65d5d0f0993110e0a16563b958ed7628398"
+    },
+    {
+      "path": "MatrixStudio/action_profiles.py",
+      "bytes": 2583,
+      "sha256": "e6c620aeb55d7a4075e8a0e2c620a3456aa47a0e9848928010f790a1afed1d3d"
     },
     {
       "path": "MatrixStudio/animatediff_models.json",
@@ -34,8 +59,8 @@
     },
     {
       "path": "MatrixStudio/assets/app.js",
-      "bytes": 40233,
-      "sha256": "e8a033eba1779cbc043f83a6cd4166ff103d46df13057630669ca45cd8cce9bc"
+      "bytes": 46475,
+      "sha256": "ae04fd419f4e10e0daf83fc646ee3cbe8a18b90dccf36a3a9448db82a5160a13"
     },
     {
       "path": "MatrixStudio/assets/lit.LICENSE",
@@ -58,9 +83,14 @@
       "sha256": "408b0a1e2e9dd98d08f1b0c6f0ba2ffd16919aaa939d190fe67a3804e4313626"
     },
     {
+      "path": "MatrixStudio/assets/runtime-entry.js",
+      "bytes": 599,
+      "sha256": "ab2aa1efdc6299d47ab09f271610581b4e28ec47c504c0c0be02b1b286916d3b"
+    },
+    {
       "path": "MatrixStudio/assets/style.css",
-      "bytes": 22101,
-      "sha256": "cd68594508f6e9662c54ccffb4a396725466219eb10a89a1cc59610a98fc35c7"
+      "bytes": 23033,
+      "sha256": "9b9158f4a1c4d6b806998a71509ffa34759419436befb9661fc4060deb86c8ab"
     },
     {
       "path": "MatrixStudio/assets/three.LICENSE",
@@ -74,18 +104,33 @@
     },
     {
       "path": "MatrixStudio/image_models.json",
-      "bytes": 17643,
-      "sha256": "2e4c5ae2efad25a9cafb92479e0afab2fa5390f561a1478ae568eb627833b3bc"
+      "bytes": 18737,
+      "sha256": "2dcb148e2ac86a720a244a485f112914bf08ae26b0c6d2b1849bb742d03dfbf4"
     },
     {
       "path": "MatrixStudio/index.html",
-      "bytes": 26331,
-      "sha256": "3e85082a51ee99378883eb0cc6a206d7d9e7b186b85b6ba9cb6aaaca9fdc26bf"
+      "bytes": 27743,
+      "sha256": "00a1142024fe1e7b7ad2e09903c42e3a8013fa9cca18ff352faed4fa70977dc6"
+    },
+    {
+      "path": "MatrixStudio/install_action_adapters.py",
+      "bytes": 1600,
+      "sha256": "cc2c319cfce334aeb51cb5db64cdd21fc6ce258a6c9f91cbef5ceb1a65692c95"
     },
     {
       "path": "MatrixStudio/install_animatediff.py",
       "bytes": 470,
       "sha256": "5e466372e767641aabff162700f3fcc86aafe0553865a03d81c7253865a53f0e"
+    },
+    {
+      "path": "MatrixStudio/install_forge.ps1",
+      "bytes": 3001,
+      "sha256": "7615b467749c5da85122b64e538bf87eff0c5bc62a22853138805ac6dbb457c9"
+    },
+    {
+      "path": "MatrixStudio/install_image_models.py",
+      "bytes": 3172,
+      "sha256": "b13e32b1c74d655fad7661835a3a636bf5b8f8e83f87ad5fe861734880b41bec"
     },
     {
       "path": "MatrixStudio/install_trellis.py",
@@ -103,6 +148,11 @@
       "sha256": "4cf4022fd40e2da95c2059046c9419a09efa9787b84fb4206f820e7f788aea31"
     },
     {
+      "path": "MatrixStudio/requirements-forge.compat.txt",
+      "bytes": 640,
+      "sha256": "8eedd9858c63515bb92d14e13ef3aceef074c58fbf29b76583790252e3a2ee41"
+    },
+    {
       "path": "MatrixStudio/requirements-video.txt",
       "bytes": 49,
       "sha256": "8bf0fac523689dd0239edf1b3fdca7cc30db244c5044227c286e06c911dd3afc"
@@ -114,8 +164,23 @@
     },
     {
       "path": "MatrixStudio/server.py",
-      "bytes": 57478,
-      "sha256": "6f3fa7b33dc7e7fb23f59bc563d37ebb281bff86e8c3594d18df240161a68ade"
+      "bytes": 75494,
+      "sha256": "c6b7d32bf0dd4f1a25bc8e18ff501b68252898800e6f8e517d7cbeb9372cdba9"
+    },
+    {
+      "path": "MatrixStudio/start_forge.ps1",
+      "bytes": 2841,
+      "sha256": "e2170039fdabe4166be67060b5deeadf77a7b03b30f80bf367549f34b225db23"
+    },
+    {
+      "path": "MatrixStudio/tests/test_action_editing.py",
+      "bytes": 2336,
+      "sha256": "2ca015ef098e4981cab055c859a45884589875bc00ab17d7d32edc31db42a1a9"
+    },
+    {
+      "path": "MatrixStudio/tests/test_queue_controls.py",
+      "bytes": 12327,
+      "sha256": "d1074540ba41ce48dd5d044a2662924ca45ed75ef4da1a81569d3cddb571d67d"
     },
     {
       "path": "MatrixStudio/tests/test_runtime_paths.py",
@@ -124,8 +189,8 @@
     },
     {
       "path": "MatrixStudio/tests/test_server.py",
-      "bytes": 36857,
-      "sha256": "df6660ec37c954dc90131102d852f6abde3da0a8816a0e651046db480b72c44e"
+      "bytes": 45067,
+      "sha256": "e3089c44b2943a42a853af2afe5c748fbfe4f818fabf771eeab1736a6220ffc7"
     },
     {
       "path": "MatrixStudio/trellis_models.json",
@@ -179,13 +244,13 @@
     },
     {
       "path": "README.en.md",
-      "bytes": 14236,
-      "sha256": "4e4e298627b9d611aaf4521c96322f0aa675f574fc8925dcc361a3c2da955b37"
+      "bytes": 15214,
+      "sha256": "a99f9b228c2da1c0d2765b68e809069c0556ebf31cd22d9fd90039f210187e99"
     },
     {
       "path": "README.md",
-      "bytes": 14439,
-      "sha256": "bb7f9b9f67cc559b4016f1a0a701e0be2922654ca106ea47de26479240248193"
+      "bytes": 15977,
+      "sha256": "6b257f28c923e20a749d5e84f1c9f524b0312fea1b21d7bbe75b73ad7ddedc80"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -203,6 +268,11 @@
       "sha256": "a449e8328c774c9d975c3b4db50f9e0984575f005355c159ffb311cf47822b4b"
     },
     {
+      "path": "docs/FORGE.md",
+      "bytes": 1905,
+      "sha256": "f314d96f9f8b8239b9b15a77ee23818a6a9d9cd47a667e788051c4c77d1e343d"
+    },
+    {
       "path": "docs/HARDWARE.md",
       "bytes": 3447,
       "sha256": "0fa708cc98b0c7dfe98346bd0b8c5eed11528a109d466dbd7088c6479af67e14"
@@ -214,18 +284,18 @@
     },
     {
       "path": "docs/HUGGING_FACE_POST.md",
-      "bytes": 2764,
-      "sha256": "dcc17f44099a39df2a58ca6d299e5bf15ac0e7fddde6fab526e085a61077c03d"
+      "bytes": 5209,
+      "sha256": "8e2985cb59abe1ba74f76fc90052bacbad28502e8ccd012e33dc56a7474bcae8"
     },
     {
       "path": "docs/IMAGE_MODELS.md",
-      "bytes": 4286,
-      "sha256": "bf3296e7f3e847a99d8ae772d9d260e98ca65950eae749d2d62503f88c2b5785"
+      "bytes": 4934,
+      "sha256": "bf717e4ef0e65263452262120ffd7f5fcdf251af2b0fc709e9f77da2b5a873ce"
     },
     {
       "path": "docs/LOCAL_ASSETS.md",
-      "bytes": 2899,
-      "sha256": "d6ca0207b21f42711c23600c62f50d31e45f761512fc8fd62237b828dc817a95"
+      "bytes": 3382,
+      "sha256": "3f4344505ad7d66627e17278fe5d523dabfc4710e2b2ae8b9e09d4c07b45babd"
     },
     {
       "path": "docs/MODELS.md",
@@ -239,8 +309,13 @@
     },
     {
       "path": "docs/PUBLICATION_AUDIT.md",
-      "bytes": 3048,
-      "sha256": "683a40c0fbea5072403410c27901fda7f5e479d020947e293df79dd895d0b23c"
+      "bytes": 5607,
+      "sha256": "0aeb177cea3bfffd67b256abe6eb4a9f13f7e5cf99e739e5879942c8ed2af871"
+    },
+    {
+      "path": "docs/QUEUE_CONTROLS.md",
+      "bytes": 3299,
+      "sha256": "086888ec5a9439c7ed201152ea8a854258b40eb7f240415af1c901ec61f38b6c"
     },
     {
       "path": "docs/TROUBLESHOOTING.md",
@@ -249,8 +324,8 @@
     },
     {
       "path": "docs/VIDEO_TUNING.md",
-      "bytes": 3545,
-      "sha256": "d99542c4b70f87596586d06dee107b37d76d93a64c01a2056f65c6172fdddc63"
+      "bytes": 9889,
+      "sha256": "325acb66cbfe9644fd8b05f5ca74270f6f311a59befe7d963735b12c8ebec04c"
     },
     {
       "path": "docs/interface.jpg",

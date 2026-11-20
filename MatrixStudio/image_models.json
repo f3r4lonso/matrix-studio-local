@@ -17,9 +17,19 @@
         "file_id": 228616,
         "url": "https://civitai.com/models/257749?modelVersionId=290640",
         "metadata_url": "https://civitai.com/api/v1/model-versions/290640",
-        "download_url": "https://civitai.com/api/download/models/290640?fileId=228616"
+        "download_url": "https://civitai.com/api/download/models/290640?fileId=228616",
+        "mirrors": [
+          {
+            "provider": "huggingface",
+            "repo": "LyliaEngine/Pony_Diffusion_V6_XL",
+            "revision": "14885f1c01d7723bcbf676773def286c1fd733bc",
+            "file": "ponyDiffusionV6XL_v6StartWithThisOne.safetensors",
+            "url": "https://huggingface.co/LyliaEngine/Pony_Diffusion_V6_XL",
+            "download_url": "https://huggingface.co/LyliaEngine/Pony_Diffusion_V6_XL/resolve/14885f1c01d7723bcbf676773def286c1fd733bc/ponyDiffusionV6XL_v6StartWithThisOne.safetensors"
+          }
+        ]
       },
-      "file": "v6.safetensors",
+      "file": "ponyDiffusionV6XL_v6StartWithThisOne.safetensors",
       "folder": "StableDiffusion",
       "format": "safetensors",
       "precision": "fp16",
@@ -262,7 +272,17 @@
         "file_id": 106430,
         "url": "https://civitai.com/models/25694?modelVersionId=143906",
         "metadata_url": "https://civitai.com/api/v1/model-versions/143906",
-        "download_url": "https://civitai.com/api/download/models/143906?fileId=106430"
+        "download_url": "https://civitai.com/api/download/models/143906?fileId=106430",
+        "mirrors": [
+          {
+            "provider": "huggingface",
+            "repo": "philz1337x/epicrealism",
+            "revision": "f22dc0ceeed8bd6d64a90b1e684ecd887aa37b40",
+            "file": "epicrealism_naturalSinRC1VAE.safetensors",
+            "url": "https://huggingface.co/philz1337x/epicrealism",
+            "download_url": "https://huggingface.co/philz1337x/epicrealism/resolve/f22dc0ceeed8bd6d64a90b1e684ecd887aa37b40/epicrealism_naturalSinRC1VAE.safetensors"
+          }
+        ]
       },
       "file": "epiCRealism-naturalSinVAE.safetensors",
       "folder": "StableDiffusion",

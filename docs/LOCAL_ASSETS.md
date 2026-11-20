@@ -36,3 +36,9 @@ Consulta el inventario sin cargar modelos:
 El inventario informa de componentes presentes, tamaños y hashes **esperados** de los manifiestos; no calcula ni valida los hashes de los archivos instalados. Usa los descargadores con verificación SHA256 para esa comprobación. Un archivo presente no garantiza que exista un adaptador o que quepa en VRAM; MiniMax H3, por ejemplo, puede almacenarse sin estar integrado. Los motores opcionales ausentes se muestran como tales, sin impedir usar ComfyUI.
 
 El [catálogo de imágenes](IMAGE_MODELS.md) es independiente del inventario instalado. Un VAE integrado en un checkpoint no necesita descargarse por separado. No mezcles VAE o LoRAs de SD 1.5, SDXL, Qwen y Wan.
+
+## Forge y controles de generación
+
+El [instalador opcional de Forge Neo](FORGE.md) crea `Data/Engines/Forge`, guarda su estado en `Runtime/Forge` y comparte `Data/Models` con Studio. No descarga checkpoints. El archivo de configuración de sesión local `assets/local-session.json`, si existe, permite dirigir los accesos locales al puerto activo y está excluido de Git.
+
+La cola conserva sus ajustes y pausa en SQLite; consulta [detener, pausar y continuar](QUEUE_CONTROLS.md).

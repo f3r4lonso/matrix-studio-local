@@ -36,3 +36,5 @@ settings.local.*
 **/*.jpg
 !MatrixStudio/assets/panda.png
 !docs/interface.jpg
+
+/MatrixStudio/assets/local-session.json

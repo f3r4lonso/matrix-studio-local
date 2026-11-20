@@ -133,7 +133,7 @@ With ComfyUI running:
 & $py -W ignore -m unittest discover -s MatrixStudio/tests -q
 ```
 
-The diagnostic checks versions, CUDA, weight files, and node availability; it does not certify visual quality. The 24 application tests cover API limits, simulated engine integration, model and VAE paths, batches, deletion/Undo, montage assembly using actual MP4 timing, and resuming jobs. They do not run neural models.
+The diagnostic checks versions, CUDA, weight files, and node availability; it does not certify visual quality. The 33 application tests cover API limits, simulated engine integration, model and VAE paths, batches, deletion/Undo, montage assembly using actual MP4 timing, and resuming jobs. They do not run neural models.
 
 ## Usage and settings
 
@@ -198,3 +198,9 @@ Original code is licensed under [MIT](LICENSE). External models and components r
 ## Asset organization and model catalog
 
 Fresh installations use `Data/Engines` for engines and `Data/Models` for checkpoints, encoders, VAEs and LoRAs. Runtime paths are configurable; existing installations remain usable. See [asset layout and inventory](docs/LOCAL_ASSETS.md). The [image catalog](docs/IMAGE_MODELS.md) documents eight checkpoints with versions, sources, SHA256, VAE information and suggested settings; these entries are not all installed or tested. [Five-second sparring trials](docs/VIDEO_TUNING.md) record settings and remaining motion artifacts. These supporting guides are in Spanish.
+
+## Queue controls and gallery provenance
+
+**Detener actual** stops Studio's active generation and pauses its queue. **Pausar cola** lets the active job finish and holds subsequent jobs. **Continuar** resumes pending work. An interrupted item restarts with its saved settings and seed; completed montage scenes are retained. Pause state survives a restart. See [queue behavior, API and engine limitations](docs/QUEUE_CONTROLS.md).
+
+Every gallery card shows its recorded engine and model; missing historical metadata is identified explicitly. Deleting a result is immediate, with Undo available for 15 seconds. The optional [Forge installer](docs/FORGE.md) shares the project's checkpoints, VAEs and LoRAs. The selected-image installer verifies sizes and SHA256 hashes before accepting downloaded files. Architecture-specific action adapters and five-second continuation trials are documented in [video tuning](docs/VIDEO_TUNING.md). The public suite includes 43 isolated tests.

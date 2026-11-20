@@ -1,0 +1,101 @@
+[
+  {
+    "id": "sparring",
+    "label": "Boxeo · intercambio probado",
+    "description": "Dos adultos con guantes rojos y azules, referencia fotográfica y semilla fija. Genera el primer clip; Continuar boxeo parte del último fotograma, y Montar pelea 2× une ambos tramos en 5,03 s.",
+    "image_prompt": "Cinematic live-action film still, realistic sports photography shot on a 35mm lens. Exactly TWO adult male boxers face each other at close punching distance, medium side-on two-shot from waist to head, both faces and all four gloves visible. Left boxer wears a dark red cotton training shirt and red boxing gloves. Right boxer wears a navy blue cotton training shirt and blue boxing gloves. Both men have realistic skin pores, short damp hair, light perspiration, athletic ordinary human proportions. The left boxer holds his lead glove halfway forward, elbow still bent; the right boxer raises his gloves to protect his chin, elbows near his ribs. Distinct separated arms and torsos. Moody empty old boxing gym, a large high window casts soft directional light on their faces, dark out-of-focus brick wall, restrained film colors, natural contrast and shadows, documentary realism, subtle film grain, tack sharp faces and gloves. Professional stunt rehearsal, no spectators, no text, no logo.",
+    "prompt": "The red boxer throws a hard straight right toward the blue boxer. Blue catches the punch on his raised gloves and immediately counters with a fast jab. Red pulls his head back and covers his face. A rapid controlled boxing exchange, brief impacts and quick recovery to guard. Locked camera, medium two-shot, chest and arms visible, normal speed, one continuous shot.",
+    "settings": {
+      "family": "wan14b",
+      "profile": "fast",
+      "adapter": "motion_fix",
+      "action_lora": "none",
+      "width": 832,
+      "height": 416,
+      "frames": 81,
+      "steps": 4,
+      "cfg": 1,
+      "shift": 5,
+      "seed": 1742,
+      "interpolation": 2
+    }
+  },
+  {
+    "id": "action_motion",
+    "label": "Acción · ritmo natural (14B)",
+    "description": "Prueba de movimiento con LoRAs Slow-Mo Fix. Referencia de dos adultos en guardia; una acción corta por plano. No fija una coreografía.",
+    "image_prompt": "Medium-wide action-film still, two adult stunt performers in red and blue training shirts and boxing gloves, facing each other at punching distance, guard raised, three-quarter side view, athletic stance, industrial training gym, dramatic soft side lighting, distinct silhouettes, realistic anatomy.",
+    "prompt": "Action film rehearsal, real-time speed. The red boxer steps in with a sharp jab followed by a forceful straight right. The blue boxer parries with his gloves, recoils from the impact and circles to his right. Both fighters reset their guard with quick footwork. Firm planted feet, full-speed athletic movement. Locked side view, uninterrupted medium-wide shot.",
+    "settings": {
+      "family": "wan14b",
+      "profile": "fast",
+      "adapter": "motion_fix",
+      "action_lora": "none",
+      "width": 640,
+      "height": 384,
+      "frames": 81,
+      "steps": 4,
+      "cfg": 1,
+      "shift": 5
+    }
+  },
+  {
+    "id": "action_native",
+    "label": "Combate · modelo sin aceleración (lento)",
+    "description": "Comparación con el 14B original, sin LoRA de aceleración. Mucho más lento; más pasos no garantizan mejores golpes.",
+    "image_prompt": "Two adult boxers in red and blue shirts, full body, gloves raised, neutral training gym, separated bodies, clear side view.",
+    "prompt": "At normal speed, the red boxer advances and throws a sharp one-two combination. Blue catches the punches on his gloves, takes a short step back and resets his guard. Quick athletic footwork and a clear recoil. Steady side-on sports camera.",
+    "settings": {
+      "family": "wan14b",
+      "profile": "balanced",
+      "adapter": "none",
+      "action_lora": "none",
+      "width": 640,
+      "height": 384,
+      "frames": 81,
+      "steps": 20,
+      "cfg": 3.5,
+      "shift": 3
+    }
+  },
+  {
+    "id": "kungfu",
+    "label": "Kung-fu · un luchador (experimental)",
+    "description": "LoRA wugong para formas, puños y patadas individuales. Combinación experimental con Slow-Mo Fix; no está entrenada específicamente para duelos.",
+    "image_prompt": "One adult martial artist, entire body visible, standing in a ready stance in an empty gym, unobstructed arms and legs, cinematic side lighting, realistic sports photograph.",
+    "prompt": "An adult martial artist performs a fast kung-fu combination: a straight punch, a pivot and a controlled front kick, then lands firmly in guard. Full body visible, athletic weight transfer, normal speed, fixed medium-wide camera, wugong.",
+    "settings": {
+      "family": "wan14b",
+      "profile": "fast",
+      "adapter": "motion_fix",
+      "action_lora": "kungfu",
+      "action_strength": 0.8,
+      "width": 640,
+      "height": 384,
+      "frames": 81,
+      "steps": 4,
+      "cfg": 1,
+      "shift": 5
+    }
+  },
+  {
+    "id": "punch",
+    "label": "Guante en retrato · experimental",
+    "description": "Efecto Aether Punch para un retrato. En nuestras pruebas el guante presionó la mejilla lentamente; no está validado para un golpe realista.",
+    "image_prompt": "Cinematic close-up portrait of one adult male stunt performer, head and shoulders, facing the camera in a three-quarter view, plain training gym background, no boxing gloves, natural skin texture, dramatic soft side lighting.",
+    "prompt": "A single boxing glove appears from the left, punching the face. The adult stunt performer recoils sharply with the impact and regains his balance. A clean cinematic training shot, no blood.",
+    "settings": {
+      "family": "wan5b",
+      "profile": "balanced",
+      "adapter": "none",
+      "action_lora": "punch",
+      "action_strength": 1,
+      "width": 512,
+      "height": 512,
+      "frames": 121,
+      "steps": 20,
+      "cfg": 5,
+      "shift": 8
+    }
+  }
+]
