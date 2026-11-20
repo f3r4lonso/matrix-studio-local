@@ -1,5 +1,5 @@
 {
-  "release": "persistent-json-image-batches-2026-11-20",
+  "release": "json-batch-server-version-diagnostic-2026-11-20",
   "hash_basis": "Canonical Git blobs; text is normalized to LF. Working-tree EOL may differ.",
   "files": [
     {
@@ -59,8 +59,8 @@
     },
     {
       "path": "MatrixStudio/assets/app.js",
-      "bytes": 46794,
-      "sha256": "1fc5902f2854519589abf60db90712c4de88d872b486a40f300ac41ff55b69ca"
+      "bytes": 47016,
+      "sha256": "adb5894128f439bd5ea85d579e6ecc052aba5c2696ec421e1c15c94e423c29be"
     },
     {
       "path": "MatrixStudio/assets/image-batches.js",
@@ -120,7 +120,7 @@
     {
       "path": "MatrixStudio/index.html",
       "bytes": 29217,
-      "sha256": "6c37f6ea26f580d1c9bd8bd4ae34834bb0c103115c373017cb2d9b4fe66e461d"
+      "sha256": "28b4fb6b861c3c8000f0f34ea617b8d8b68b05d061fbb62945bc247cdc97e472"
     },
     {
       "path": "MatrixStudio/install_action_adapters.py",
@@ -309,8 +309,8 @@
     },
     {
       "path": "docs/JSON_BATCHES.md",
-      "bytes": 5373,
-      "sha256": "ac4e94ea5d9030c51cf66d5627f766d5c4ea4fd9072419f2dbb71b2d3a852620"
+      "bytes": 5852,
+      "sha256": "20eac3da43c4ee5b682b0df6c2ff818677f93af7d6bee633c9984f1e340b49e8"
     },
     {
       "path": "docs/LOCAL_ASSETS.md",

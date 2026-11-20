@@ -66,3 +66,7 @@ Ocho pruebas aisladas cubren validación atómica, orden y nombres, deduplicaci�
 La deduplicación compara contenido normalizado, nombres, metadatos y ajustes. Cambiar cualquiera de ellos crea otro lote. Las semillas aleatorias se eligen una vez al guardar y se reutilizan al reintentar. El nombre visible y el índice se incluyen al descargar desde Studio; los archivos internos conservan identificadores seguros.
 
 Ocho pruebas específicas cubren validación atómica, orden, negativos y metadatos del formato Pokémon, prompts repetidos, importación sin duplicados, errores, detención y recuperación tras reinicio. La suite pública completa tiene 51 pruebas. Esta versión requiere reiniciar el servidor local para registrar las nuevas rutas API; actualizar solo la pestaña no recarga Python.
+
+## Si aparece un error al importar
+
+Un HTTP 404 en `/api/image-batches` significa que la pestaña ha cargado los archivos nuevos, pero el proceso Python abierto pertenece a la versión anterior. Reinicia el servidor para registrar la API nueva. Recargar la pestaña o volver a abrir un lanzador que detecta el mismo servidor existente no recarga el backend. La interfaz distingue ahora este caso y muestra una instrucción específica en lugar del error genérico de petición.
