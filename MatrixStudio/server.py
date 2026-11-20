@@ -21,6 +21,7 @@ import aiohttp
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from runtime_paths import project_asset
 from action_editing import join_action_segments
+from image_batches import normalize_batch, store_batch, batch_summaries
 from action_profiles import prepare_action, validate_adapters, required_adapters, preset_status, NAMES as ACTION_NAMES
 import av
 from aiohttp import web
@@ -49,6 +50,7 @@ DB.executescript('''
 CREATE TABLE IF NOT EXISTS chats (id TEXT PRIMARY KEY, title TEXT, created REAL);
 CREATE TABLE IF NOT EXISTS renders (id TEXT PRIMARY KEY, chat_id TEXT, prompt TEXT,
  params TEXT, status TEXT, detail TEXT, image TEXT, created REAL);
+CREATE TABLE IF NOT EXISTS image_batches (id TEXT PRIMARY KEY, chat_id TEXT NOT NULL, name TEXT NOT NULL, fingerprint TEXT NOT NULL UNIQUE, created REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS studio_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 ''')
 DB.commit()
@@ -213,7 +215,9 @@ async def queue_resume(request):
     app = request.app
     if app.get('stopping'):
         raise ValueError('Espera a que el motor confirme la detención antes de continuar.')
-    for row in rows("SELECT id FROM renders WHERE status='paused' ORDER BY created,id"):
+    for row in rows("SELECT id,params,status FROM renders WHERE status IN ('paused','error') ORDER BY rowid"):
+        if row['status'] == 'error' and not json.loads(row['params']).get('image_batch_id'):
+            continue
         update(row['id'], status='queued', detail='En cola para continuar con la misma semilla')
         queue_render(app, row['id'])
     DB.execute("INSERT OR REPLACE INTO studio_settings (key,value) VALUES ('queue_paused','0')")
@@ -339,7 +343,7 @@ async def chats(request):
 
 async def renders(request):
     chat = request.query.get('chat')
-    result = rows('SELECT * FROM renders WHERE chat_id=? ORDER BY created', (chat,)) if chat else rows('SELECT * FROM renders WHERE image_deleted=0 ORDER BY created DESC')
+    result = rows('SELECT * FROM renders WHERE chat_id=? ORDER BY created,rowid', (chat,)) if chat else rows('SELECT * FROM renders WHERE image_deleted=0 ORDER BY created DESC')
     for row in result:
         row['params'] = json.loads(row['params'])
         if row['image_deleted']:
@@ -412,6 +416,19 @@ async def generate(request):
     for rid in ids:
         queue_render(request.app, rid)
     return web.json_response({'id': ids[0], 'ids': ids, 'chat': cid, 'count': count})
+
+
+async def import_image_batch(request):
+    data = await request.json()
+    batch = normalize_batch(data)
+    result, ids = store_batch(DB, batch)
+    for rid in ids:
+        queue_render(request.app, rid)
+    return web.json_response({**result, 'count': len(batch['prompts'])})
+
+
+async def list_image_batches(request):
+    return web.json_response(batch_summaries(DB))
 
 
 def workflow(p, prompt):
@@ -1208,6 +1225,9 @@ async def worker(app):
                 update(rid, status='paused', detail='Generación detenida. Los resultados terminados se conservan; pulsa Continuar.')
             else:
                 update(rid, status='error', detail=str(exc) or 'No se pudo conectar con el motor. Inícialo desde Motores.')
+                if p.get('image_batch_id'):
+                    pause_generation_queue(app)
+                    app['queue_error'] = 'El lote se ha detenido en una imagen con error. Corrige la causa y pulsa Continuar para reintentar sin saltarla.'
         finally:
             app['queued_ids'].discard(rid)
             app['active_id'] = None
@@ -1267,6 +1287,8 @@ def create_app():
     app = web.Application(middlewares=[boundary], client_max_size=21 * 1024 * 1024)
     app.cleanup_ctx.append(lifecycle)
     app.router.add_get('/', index)
+    app.router.add_get('/api/image-batches', list_image_batches)
+    app.router.add_post('/api/image-batches', import_image_batch)
     app.router.add_get('/api/queue/status', queue_status)
     app.router.add_post('/api/queue/pause', queue_pause)
     app.router.add_post('/api/queue/resume', queue_resume)

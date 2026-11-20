@@ -16,6 +16,7 @@
     <button class="nav-button" data-view="video"><span data-icon="video"></span>Crear vídeo<span class="tiny-label">LOCAL</span></button>
     <button class="nav-button" data-view="animatediff"><span data-icon="motion"></span>AnimateDiff<span class="tiny-label">LOCAL</span></button>
     <button class="nav-button" data-view="mesh"><span data-icon="cube"></span>Crear 3D<span class="tiny-label">LOCAL</span></button>
+    <button class="nav-button" data-view="batches"><span data-icon="layers"></span>Lotes JSON</button>
     <button class="nav-button" data-view="gallery"><span data-icon="grid"></span>Mi galería<span class="nav-count" id="gallery-count">0</span></button>
     <button class="nav-button" data-view="engines"><span data-icon="layers"></span>Motores<span class="tiny-label">LOCAL</span></button>
   </nav>
@@ -52,6 +53,16 @@
       </form>
       <div class="composer-caption"><span id="engine-status">Comprobando motores…</span><span>Enter para crear · Shift + Enter para nueva línea</span></div>
     </div>
+  </section>
+  <section id="batches-view" class="view secondary-view" hidden>
+    <div class="section-eyebrow">GENERACIÓN EN ORDEN</div><h1>Una imagen por prompt.</h1>
+    <p class="secondary-intro">Importa un objeto o una lista JSON con nombre, prompt y negative_prompt. El progreso se guarda y los errores pausan la cola para no saltar imágenes.</p>
+    <div class="batch-import-panel"><h2>Importar lote</h2><p>Se usan el motor, modelo y ajustes de Crear imágenes, salvo los valores definidos en settings dentro del JSON. Usa Ajustes para elegirlos antes de importar.</p>
+    <button type="button" class="secondary-button" id="batch-example">Descargar JSON de ejemplo</button>
+    <label>Archivo JSON<input id="batch-file" type="file" accept=".json,application/json"></label>
+    <pre id="batch-preview" aria-live="polite"></pre><button type="button" class="generate-button" id="batch-import" disabled>Guardar lote en la cola</button>
+    <p>Conserva numero y numero_pokedex y usa el negativo de cada imagen. Máximo 1000 prompts y 2 MB. Importar el mismo contenido y ajustes recupera el lote existente. Los controles Detener actual, Pausar cola y Continuar afectan a toda la cola. Continuar reintenta la imagen interrumpida con la misma semilla.</p></div>
+    <div id="image-batch-list" aria-live="polite"></div>
   </section>
   <section id="gallery-view" class="view secondary-view" hidden><div class="section-eyebrow">TU COLECCIÓN</div><h1>Ideas que tomaron forma.</h1><p class="secondary-intro">Las imágenes y los vídeos que has creado en tu estudio.</p><div class="gallery" id="gallery"></div></section>
   <section id="video-view" class="view secondary-view video-view" hidden>
@@ -122,7 +133,8 @@
 <aside class="settings-panel" id="settings-panel" hidden><div class="panel-title"><h2>Ajustes de creación</h2><button id="close-settings" class="icon-button" aria-label="Cerrar ajustes"><span data-icon="close"></span></button></div><p class="panel-description">Cada detalle cuenta.</p><label>Modelo<select id="model"></select></label><label>Formato<select id="size"><option value="512x512">Cuadrado · 512 × 512</option><option value="768x512">Horizontal · 768 × 512</option><option value="512x768">Vertical · 512 × 768</option><option value="1024x1024">Cuadrado HD · 1024 × 1024</option><option value="1024x576">Panorámico · 1024 × 576</option></select></label><div class="field-row"><label>Pasos<input type="number" id="steps" min="1" max="150" value="20" required></label><label>CFG<input type="number" id="cfg" min="0" max="30" step="0.1" value="7" required></label></div><label>Semilla<input type="number" id="seed" min="-1" max="2147483647" value="-1" required></label><small>Usa −1 para una imagen diferente cada vez.</small><label class="negative-label">Prompt negativo<textarea id="negative" rows="4" placeholder="Lo que prefieres evitar…"></textarea></label><div class="settings-note"><span data-icon="info"></span><p>Qwen Turbo: 8 pasos y CFG 1.<br>SDXL: prueba 20 pasos y CFG 7.<br>Más resolución requiere más memoria.</p></div></aside>
 <dialog id="image-dialog"><button class="dialog-close icon-button" id="close-image" aria-label="Cerrar imagen"><span data-icon="close"></span></button><img id="full-image" alt="Imagen generada ampliada"><div id="image-meta"></div></dialog>
 <div id="toast" class="toast" role="status" hidden></div>
-<script src="/assets/app.js?v=queue-gallery-2"></script>
+<script src="/assets/app.js?v=json-batches-1"></script>
+<script src="/assets/image-batches.js?v=1"></script>
 <script type="module" src="/assets/model-viewer.min.js"></script>
 </body>
 </html>

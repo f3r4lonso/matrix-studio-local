@@ -44,3 +44,7 @@ Se añadieron diez pruebas de cola, incluyendo recuperación tras reinicio, rean
 La galería utiliza los metadatos guardados para mostrar motor y modelo, con escape HTML y valores explícitos cuando faltan datos históricos. Se revisaron la sintaxis JavaScript y los lanzadores PowerShell. El perfil opcional Forge conserva un entorno independiente y no distribuye motores instalados ni pesos. La revisión automática de privacidad se ejecuta de nuevo antes de publicar; los resultados de pruebas, la base de datos y la configuración privada de redirección permanecen locales.
 
 La revisión final abarcó 77 archivos publicables sin coincidencias de identificadores privados ni credenciales. Se validó la sintaxis JavaScript de ambas copias, las etiquetas de los tres motores y la compatibilidad con metadatos ausentes, además de la sintaxis y el plan sin escrituras del instalador Forge.
+
+## Lotes JSON con recuperación
+
+La importación añade validación completa antes de guardar, transacción SQLite, semillas persistentes, huella del lote y progreso derivado de los resultados. Los errores pausan la cola para reintentar la entrada pendiente. Pasaron 51 pruebas en la copia publicable y las comprobaciones JavaScript de carga, vista previa y envío del formato con nombre, número, Pokédex y negativo propio. No se publican archivos de lotes ni resultados personales.

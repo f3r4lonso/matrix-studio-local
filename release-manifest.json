@@ -1,5 +1,5 @@
 {
-  "release": "queue-controls-gallery-provenance-forge-2026-11-20",
+  "release": "persistent-json-image-batches-2026-11-20",
   "hash_basis": "Canonical Git blobs; text is normalized to LF. Working-tree EOL may differ.",
   "files": [
     {
@@ -59,8 +59,13 @@
     },
     {
       "path": "MatrixStudio/assets/app.js",
-      "bytes": 46475,
-      "sha256": "ae04fd419f4e10e0daf83fc646ee3cbe8a18b90dccf36a3a9448db82a5160a13"
+      "bytes": 46794,
+      "sha256": "1fc5902f2854519589abf60db90712c4de88d872b486a40f300ac41ff55b69ca"
+    },
+    {
+      "path": "MatrixStudio/assets/image-batches.js",
+      "bytes": 3887,
+      "sha256": "af3b6f038ce12bcf446e12e4c84a90320c41dd42e546bea89143d197b87ba2d5"
     },
     {
       "path": "MatrixStudio/assets/lit.LICENSE",
@@ -89,8 +94,8 @@
     },
     {
       "path": "MatrixStudio/assets/style.css",
-      "bytes": 23033,
-      "sha256": "9b9158f4a1c4d6b806998a71509ffa34759419436befb9661fc4060deb86c8ab"
+      "bytes": 23574,
+      "sha256": "b4fc2656f6b64bf148a733bbd75e96e98d2b06570ad5174d6df185b21d562e36"
     },
     {
       "path": "MatrixStudio/assets/three.LICENSE",
@@ -103,14 +108,19 @@
       "sha256": "8805abcf8db16b20724882829d47c539e4c477fb80363530378c58af576e7453"
     },
     {
+      "path": "MatrixStudio/image_batches.py",
+      "bytes": 7033,
+      "sha256": "8caf495fa8ba47974487da7beffcb2e6e273f6b5b7d647e218fc874973e53b71"
+    },
+    {
       "path": "MatrixStudio/image_models.json",
       "bytes": 18737,
       "sha256": "2dcb148e2ac86a720a244a485f112914bf08ae26b0c6d2b1849bb742d03dfbf4"
     },
     {
       "path": "MatrixStudio/index.html",
-      "bytes": 27743,
-      "sha256": "00a1142024fe1e7b7ad2e09903c42e3a8013fa9cca18ff352faed4fa70977dc6"
+      "bytes": 29217,
+      "sha256": "6c37f6ea26f580d1c9bd8bd4ae34834bb0c103115c373017cb2d9b4fe66e461d"
     },
     {
       "path": "MatrixStudio/install_action_adapters.py",
@@ -164,8 +174,8 @@
     },
     {
       "path": "MatrixStudio/server.py",
-      "bytes": 75494,
-      "sha256": "c6b7d32bf0dd4f1a25bc8e18ff501b68252898800e6f8e517d7cbeb9372cdba9"
+      "bytes": 76622,
+      "sha256": "8b69af5fd668b3ff600cd28aaae581771aeaa6909198f219ec964b447b3d6d5e"
     },
     {
       "path": "MatrixStudio/start_forge.ps1",
@@ -176,6 +186,11 @@
       "path": "MatrixStudio/tests/test_action_editing.py",
       "bytes": 2336,
       "sha256": "2ca015ef098e4981cab055c859a45884589875bc00ab17d7d32edc31db42a1a9"
+    },
+    {
+      "path": "MatrixStudio/tests/test_image_batches.py",
+      "bytes": 8524,
+      "sha256": "50cd6ed675153af34fd30d6f841e8e9418e73ae17780a73abd3ea3c8099c1128"
     },
     {
       "path": "MatrixStudio/tests/test_queue_controls.py",
@@ -244,13 +259,13 @@
     },
     {
       "path": "README.en.md",
-      "bytes": 15214,
-      "sha256": "a99f9b228c2da1c0d2765b68e809069c0556ebf31cd22d9fd90039f210187e99"
+      "bytes": 15680,
+      "sha256": "7c65e6a2a9df94c92da17c3385dab5057f0e09097356408331f1b6cf044b0225"
     },
     {
       "path": "README.md",
-      "bytes": 15977,
-      "sha256": "6b257f28c923e20a749d5e84f1c9f524b0312fea1b21d7bbe75b73ad7ddedc80"
+      "bytes": 16439,
+      "sha256": "007eac8548583c564f08dccacfd31918bc3db80448a24344b74e7a968f46e325"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -284,13 +299,18 @@
     },
     {
       "path": "docs/HUGGING_FACE_POST.md",
-      "bytes": 5209,
-      "sha256": "8e2985cb59abe1ba74f76fc90052bacbad28502e8ccd012e33dc56a7474bcae8"
+      "bytes": 6556,
+      "sha256": "91a576bb74f72f73c3f3620ae2b2413a2ef1b428e530e6584583fa75669f3fb2"
     },
     {
       "path": "docs/IMAGE_MODELS.md",
       "bytes": 4934,
       "sha256": "bf717e4ef0e65263452262120ffd7f5fcdf251af2b0fc709e9f77da2b5a873ce"
+    },
+    {
+      "path": "docs/JSON_BATCHES.md",
+      "bytes": 5373,
+      "sha256": "ac4e94ea5d9030c51cf66d5627f766d5c4ea4fd9072419f2dbb71b2d3a852620"
     },
     {
       "path": "docs/LOCAL_ASSETS.md",
@@ -309,13 +329,13 @@
     },
     {
       "path": "docs/PUBLICATION_AUDIT.md",
-      "bytes": 5607,
-      "sha256": "0aeb177cea3bfffd67b256abe6eb4a9f13f7e5cf99e739e5879942c8ed2af871"
+      "bytes": 6093,
+      "sha256": "9b3d8884cfe2db4bfb6808e139c47a785333e1d2bc5d1629acba357be07817df"
     },
     {
       "path": "docs/QUEUE_CONTROLS.md",
-      "bytes": 3299,
-      "sha256": "086888ec5a9439c7ed201152ea8a854258b40eb7f240415af1c901ec61f38b6c"
+      "bytes": 3538,
+      "sha256": "287de4052bb5bb4093f4b5f47d9966ae06c704823d6bcce1b5464bf33ff8a347"
     },
     {
       "path": "docs/TROUBLESHOOTING.md",

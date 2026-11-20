@@ -212,4 +212,8 @@ La [instalación opcional de Forge](docs/FORGE.md) comparte checkpoints, VAE y L
 python MatrixStudio/install_image_models.py pony_v6_xl juggernaut_xl_v9 epicrealism_natural_sin_rc1_vae
 ```
 
-El instalador comprueba tamaño y SHA256 antes de aceptar cada archivo. Las claves exactas disponibles figuran en `python MatrixStudio/install_image_models.py --help`. Las recetas de acción y sus LoRAs son específicas de cada arquitectura; no deben intercambiarse entre Wan 5B y 14B. La suite pública incluye 43 pruebas aisladas.
+El instalador comprueba tamaño y SHA256 antes de aceptar cada archivo. Las claves exactas disponibles figuran en `python MatrixStudio/install_image_models.py --help`. Las recetas de acción y sus LoRAs son específicas de cada arquitectura; no deben intercambiarse entre Wan 5B y 14B. La suite pública incluye 51 pruebas aisladas.
+
+## Lotes desde JSON
+
+**Lotes JSON** importa un objeto o una lista con `nombre`, `prompt` y `negative_prompt`; conserva `numero` y `numero_pokedex`. Genera una imagen por entrada en el orden del archivo y guarda el progreso. Un error pausa la cola y Continuar reintenta la imagen pendiente antes de seguir. Incluye vista previa, ejemplo descargable y protección contra importar dos veces el mismo lote. Consulta [formato y recuperación](docs/JSON_BATCHES.md).

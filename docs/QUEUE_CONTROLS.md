@@ -35,3 +35,7 @@ La prueba local con ComfyUI detuvo un prompt en ejecución, conservó el siguien
 ## Galería
 
 Cada resultado muestra el motor registrado y el nombre del modelo. Qwen se identifica como `Qwen · stable-diffusion.cpp`; el adaptador HTTP figura como `Automatic1111 / Forge`, porque los registros históricos no distinguen ambos servidores. Los resultados antiguos sin esos metadatos muestran `Motor no registrado` o `Modelo no registrado`.
+
+## Lotes JSON
+
+Los [lotes de imágenes](JSON_BATCHES.md) usan estos mismos controles. Un error en un elemento pausa la cola y Continuar lo reintenta antes de los posteriores. Se mantienen los resultados terminados y el orden del archivo.

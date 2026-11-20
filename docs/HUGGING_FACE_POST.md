@@ -39,3 +39,13 @@ Los pesos y resultados privados permanecen locales. / Model weights and private 
 - [Instalar Forge / Optional Forge setup](https://github.com/f3r4lonso/matrix-studio-local/blob/main/docs/FORGE.md)
 
 Este Space sigue siendo una presentación estática; la generación y sus controles funcionan en la instalación local. / This remains a static presentation; generation and queue controls run locally.
+
+Source revision: [c54f9c3](https://github.com/f3r4lonso/matrix-studio-local/commit/c54f9c365a7e8c788c5831dc4de33f6433f2c7b9).
+
+## Lotes JSON / JSON batches
+
+**Español.** La nueva sección Lotes JSON recibe un objeto o una lista con `nombre`, `prompt` y `negative_prompt`, conservando `numero` y `numero_pokedex`. Genera una imagen por entrada en orden, guarda el progreso y permite pausar, detener y continuar. Un error pausa la cola y se reintenta antes de avanzar. Importar el mismo contenido y ajustes recupera el lote existente. Incluye vista previa y ejemplo descargable. Pasaron 51 pruebas de la copia publicable. Reinicia el servidor local tras actualizar para cargar las nuevas rutas API.
+
+**English.** JSON batches accept one object or an array with `nombre`, `prompt` and `negative_prompt`, preserving optional number and Pokédex metadata. Each entry generates one image in file order with saved progress. Errors pause the queue and must be retried before advancing. Identical content and settings recover the existing batch. A file preview and downloadable example are included. The public suite passes 51 tests. Restart the local server after updating to load the new API routes.
+
+[Formato, controles y recuperación / Format, controls and recovery](https://github.com/f3r4lonso/matrix-studio-local/blob/main/docs/JSON_BATCHES.md).
