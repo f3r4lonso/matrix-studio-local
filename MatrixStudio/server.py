@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from runtime_paths import project_asset
 from action_editing import join_action_segments
 from image_batches import normalize_batch, store_batch, batch_summaries
+from gpu_memory import release_idle_backends
 from action_profiles import prepare_action, validate_adapters, required_adapters, preset_status, NAMES as ACTION_NAMES
 import av
 from aiohttp import web
@@ -106,8 +107,60 @@ def generation_queue_state(app):
     counts = {r['status']: r['n'] for r in rows('SELECT status,count(*) AS n FROM renders GROUP BY status')}
     return {'paused': not app['queue_gate'].is_set(), 'stopping': app.get('stopping', False),
             'active_id': app.get('active_id'), 'queued': counts.get('queued', 0),
-            'paused_jobs': counts.get('paused', 0), 'error': app.get('queue_error', '')}
+            'paused_jobs': counts.get('paused', 0), 'error': app.get('queue_error', ''), 'gpu': gpu_state(app)}
 
+
+
+def gpu_state(app):
+    return {'enabled':app.get('release_gpu_enabled', True), 'cleaning':app.get('gpu_cleaning', False),
+            'last_report':app.get('gpu_last_report'), 'warning':app.get('gpu_warning', '')}
+
+
+async def clean_gpu_memory(app, force=False):
+    if not force and not app.get('release_gpu_enabled', True):
+        return
+    async with app['gpu_cleanup_lock']:
+        app['gpu_cleaning'] = True
+        try:
+            report = await release_idle_backends(app['session'], CONFIG)
+            app['gpu_last_report'] = report
+            app['gpu_warning'] = ' '.join(e['detail'] for e in report['engines'] if e['status'] in ('error','busy','requested'))
+        except Exception as exc:
+            # Cleanup failure must never turn a completed image into a failed job.
+            app['gpu_warning'] = 'No se pudo confirmar la limpieza GPU: ' + str(exc)
+        finally:
+            app['gpu_cleaning'] = False
+
+
+async def gpu_settings(request):
+    data = await request.json()
+    if not isinstance(data, dict) or type(data.get('enabled')) is not bool:
+        raise ValueError('enabled debe ser true o false.')
+    app = request.app
+    app['release_gpu_enabled'] = data['enabled']
+    DB.execute("INSERT OR REPLACE INTO studio_settings (key,value) VALUES ('release_gpu_after_job',?)", ('1' if data['enabled'] else '0',))
+    DB.commit()
+    return web.json_response(gpu_state(app))
+
+
+async def gpu_release(request):
+    app = request.app
+    if app.get('active_id') or app.get('gpu_cleaning'):
+        raise ValueError('Espera a que termine la generación o limpieza activa.')
+    await clean_gpu_memory(app, force=True)
+    return web.json_response(gpu_state(app))
+
+
+async def render_with_clean_memory(app, row, p):
+    await clean_gpu_memory(app)
+    if app.get('stop_requested') == row['id']:
+        raise GenerationStopped()
+    update(row['id'], detail='Cargando modelo y generando…')
+    if p['engine'] == 'comfy':
+        return await (render_montage(app, row, p) if p.get('duration_seconds') else render_comfy(app, row, p))
+    if p['engine'] == 'qwen':
+        return await render_qwen(app, row, p)
+    return await render_automatic(app, row, p)
 
 
 async def queue_status(request):
@@ -1201,14 +1254,8 @@ async def worker(app):
             p = json.loads(row['params'])
             app['active_id'] = rid
             app['execution'] = None
-            update(rid, status='running', detail='Cargando modelo y generando…')
-            if p['engine'] == 'comfy':
-                operation = render_montage(app, row, p) if p.get('duration_seconds') else render_comfy(app, row, p)
-            elif p['engine'] == 'qwen':
-                operation = render_qwen(app, row, p)
-            else:
-                operation = render_automatic(app, row, p)
-            app['render_task'] = asyncio.create_task(operation)
+            update(rid, status='running', detail='Preparando memoria GPU…')
+            app['render_task'] = asyncio.create_task(render_with_clean_memory(app, row, p))
             content = await app['render_task']
             if app.get('stop_requested') == rid:
                 raise GenerationStopped()
@@ -1229,6 +1276,8 @@ async def worker(app):
                     pause_generation_queue(app)
                     app['queue_error'] = 'El lote se ha detenido en una imagen con error. Corrige la causa y pulsa Continuar para reintentar sin saltarla.'
         finally:
+            if app.get('active_id') == rid:
+                await clean_gpu_memory(app)
             app['queued_ids'].discard(rid)
             app['active_id'] = None
             app['execution'] = None
@@ -1243,6 +1292,12 @@ async def lifecycle(app):
         DB.execute("INSERT OR REPLACE INTO studio_settings (key,value) VALUES ('queue_paused','1')")
     DB.commit()
     app['session'] = aiohttp.ClientSession()
+    app['gpu_cleanup_lock'] = asyncio.Lock()
+    memory_policy = rows("SELECT value FROM studio_settings WHERE key='release_gpu_after_job'")
+    app['release_gpu_enabled'] = not memory_policy or memory_policy[0]['value'] != '0'
+    app['gpu_cleaning'] = False
+    app['gpu_last_report'] = None
+    app['gpu_warning'] = ''
     app['queue'] = asyncio.PriorityQueue()
     app['queued_ids'] = set()
     app['queue_gate'] = asyncio.Event()
@@ -1287,6 +1342,8 @@ def create_app():
     app = web.Application(middlewares=[boundary], client_max_size=21 * 1024 * 1024)
     app.cleanup_ctx.append(lifecycle)
     app.router.add_get('/', index)
+    app.router.add_post('/api/gpu/settings', gpu_settings)
+    app.router.add_post('/api/gpu/release', gpu_release)
     app.router.add_get('/api/image-batches', list_image_batches)
     app.router.add_post('/api/image-batches', import_image_batch)
     app.router.add_get('/api/queue/status', queue_status)

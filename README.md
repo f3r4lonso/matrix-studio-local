@@ -217,3 +217,7 @@ El instalador comprueba tamaño y SHA256 antes de aceptar cada archivo. Las clav
 ## Lotes desde JSON
 
 **Lotes JSON** importa un objeto o una lista con `nombre`, `prompt` y `negative_prompt`; conserva `numero` y `numero_pokedex`. Genera una imagen por entrada en el orden del archivo y guarda el progreso. Un error pausa la cola y Continuar reintenta la imagen pendiente antes de seguir. Incluye vista previa, ejemplo descargable y protección contra importar dos veces el mismo lote. Consulta [formato y recuperación](docs/JSON_BATCHES.md).
+
+## Limpieza GPU entre trabajos
+
+Se añadió **Liberar VRAM entre generaciones**, activado por defecto, y **Liberar ahora**. Studio solicita descargar modelos y caché de motores inactivos antes y después de cada trabajo. Consulta [comportamiento y límites](docs/GPU_MEMORY.md). Esta modificación está pendiente de pruebas funcionales y GPU; requiere reiniciar el servidor para activarse.

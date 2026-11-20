@@ -45,6 +45,9 @@ class StudioTest(unittest.IsolatedAsyncioTestCase):
                 os.environ.pop('MATRIX_STUDIO_DATA_DIR')
             else:
                 os.environ['MATRIX_STUDIO_DATA_DIR'] = previous
+        # Keep unrelated tests away from real local GPU backends.
+        self.studio.DB.execute("INSERT OR REPLACE INTO studio_settings (key,value) VALUES ('release_gpu_after_job','0')")
+        self.studio.DB.commit()
         self.app = self.studio.create_app()
         self.client = TestClient(TestServer(self.app), headers={'Host': '127.0.0.1:7880'})
         await self.client.start_server()

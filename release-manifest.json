@@ -1,5 +1,5 @@
 {
-  "release": "json-batch-server-version-diagnostic-2026-11-20",
+  "release": "gpu-cleanup-pending-validation-2026-11-20",
   "hash_basis": "Canonical Git blobs; text is normalized to LF. Working-tree EOL may differ.",
   "files": [
     {
@@ -59,8 +59,8 @@
     },
     {
       "path": "MatrixStudio/assets/app.js",
-      "bytes": 47016,
-      "sha256": "adb5894128f439bd5ea85d579e6ecc052aba5c2696ec421e1c15c94e423c29be"
+      "bytes": 48121,
+      "sha256": "f77e6451bc4070902d11204808cd67824f0f44e079156534146c4ee887a4d94b"
     },
     {
       "path": "MatrixStudio/assets/image-batches.js",
@@ -94,8 +94,8 @@
     },
     {
       "path": "MatrixStudio/assets/style.css",
-      "bytes": 23574,
-      "sha256": "b4fc2656f6b64bf148a733bbd75e96e98d2b06570ad5174d6df185b21d562e36"
+      "bytes": 23858,
+      "sha256": "5ee69eae0828c3251da5c46514b914be4a4aadc79af7437f5bb2e7c422f82417"
     },
     {
       "path": "MatrixStudio/assets/three.LICENSE",
@@ -106,6 +106,11 @@
       "path": "MatrixStudio/evaluate_video.py",
       "bytes": 1948,
       "sha256": "8805abcf8db16b20724882829d47c539e4c477fb80363530378c58af576e7453"
+    },
+    {
+      "path": "MatrixStudio/gpu_memory.py",
+      "bytes": 3140,
+      "sha256": "eca04a0814164dd9085d90022691e4af6d4e4648cc6059119400043758f6dd42"
     },
     {
       "path": "MatrixStudio/image_batches.py",
@@ -119,8 +124,8 @@
     },
     {
       "path": "MatrixStudio/index.html",
-      "bytes": 29217,
-      "sha256": "28b4fb6b861c3c8000f0f34ea617b8d8b68b05d061fbb62945bc247cdc97e472"
+      "bytes": 29583,
+      "sha256": "6d68a22fee4727b077c490a73f073e367d237b34415212a0a5738cbbb3e55cc9"
     },
     {
       "path": "MatrixStudio/install_action_adapters.py",
@@ -174,8 +179,8 @@
     },
     {
       "path": "MatrixStudio/server.py",
-      "bytes": 76622,
-      "sha256": "8b69af5fd668b3ff600cd28aaae581771aeaa6909198f219ec964b447b3d6d5e"
+      "bytes": 79100,
+      "sha256": "ca9468a5f7d1d2fd6fda2e2f6b797148b7414b039d0836733579c15c6ed60006"
     },
     {
       "path": "MatrixStudio/start_forge.ps1",
@@ -204,8 +209,8 @@
     },
     {
       "path": "MatrixStudio/tests/test_server.py",
-      "bytes": 45067,
-      "sha256": "e3089c44b2943a42a853af2afe5c748fbfe4f818fabf771eeab1736a6220ffc7"
+      "bytes": 45287,
+      "sha256": "c78df221780131d66f37d7a34bfcde3f63295f9a156d7e69fdeb9a6fc390f770"
     },
     {
       "path": "MatrixStudio/trellis_models.json",
@@ -259,13 +264,13 @@
     },
     {
       "path": "README.en.md",
-      "bytes": 15680,
-      "sha256": "7c65e6a2a9df94c92da17c3385dab5057f0e09097356408331f1b6cf044b0225"
+      "bytes": 16041,
+      "sha256": "119d557f6eb3f27877ca01ca086aee543979e1e569dedf6eae2128a1cd8658be"
     },
     {
       "path": "README.md",
-      "bytes": 16439,
-      "sha256": "007eac8548583c564f08dccacfd31918bc3db80448a24344b74e7a968f46e325"
+      "bytes": 16832,
+      "sha256": "2fd0217c181d9e9dead727064558f9c6a97faa1b2de25e7ea50d3fa4a6543ef1"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -286,6 +291,11 @@
       "path": "docs/FORGE.md",
       "bytes": 1905,
       "sha256": "f314d96f9f8b8239b9b15a77ee23818a6a9d9cd47a667e788051c4c77d1e343d"
+    },
+    {
+      "path": "docs/GPU_MEMORY.md",
+      "bytes": 2871,
+      "sha256": "643900e2967d999d49b1aac30ba07a4f6293e06440d5fba96fcafd1a6dac1e37"
     },
     {
       "path": "docs/HARDWARE.md",

@@ -208,3 +208,7 @@ Every gallery card shows its recorded engine and model; missing historical metad
 ## JSON image batches
 
 **Lotes JSON** accepts one object or an array with `nombre`, `prompt` and `negative_prompt`, preserving optional `numero` and `numero_pokedex` metadata. One image is generated per entry in file order, with persistent progress. Errors pause the queue; Continue retries the failed image before advancing. Import includes a preview, a downloadable example and deduplication of identical batches. See [format and recovery](docs/JSON_BATCHES.md).
+
+## GPU cleanup between jobs
+
+The default-on **Liberar VRAM entre generaciones** option requests model/cache release from idle backends before and after jobs. **Liberar ahora** requests manual cleanup while Studio is idle. See [behavior and limitations](docs/GPU_MEMORY.md). This change is pending functional and GPU testing; restart the server to activate it.

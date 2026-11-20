@@ -195,7 +195,7 @@ if(new URLSearchParams(location.search).get('view')==='video')setView('video');
 
 async function loadQueueStatus(){
  try{
-  const q=await api('queue/status');state.generationQueue=q;
+  const q=await api('queue/status');state.generationQueue=q;updateGpuControls(q);
   const pending=q.queued+q.paused_jobs;
   $('#queue-summary').textContent=q.stopping?'Deteniendo generación…':q.paused?`Cola pausada · ${pending} pendientes${q.active_id?' · la actual sigue generándose':''}`:q.active_id?`Generando · ${pending} en cola`:`Cola lista · ${pending} pendientes`;
   $('#stop-generation').disabled=!q.active_id||q.stopping;
@@ -207,3 +207,12 @@ async function loadQueueStatus(){
 for(const [id,action,message] of [['stop-generation','stop','Deteniendo la actual y pausando la cola.'],['pause-queue','pause','Cola pausada. La generación actual puede terminar.'],['resume-queue','resume','Continuando los trabajos pendientes.']]){
  $('#'+id).onclick=async()=>{const button=$('#'+id);button.disabled=true;try{await api('queue/'+action,{});await Promise.all([loadQueueStatus(),loadConversation(),loadVideos(),loadMeshes(),loadAdVideos()]);toast(message);}catch(e){toast(e.message);await loadQueueStatus();}};
 }
+
+function updateGpuControls(q){
+ const g=q.gpu;$('#release-gpu-after').disabled=!g||g.cleaning;$('#release-gpu-now').disabled=!g||!!q.active_id||g.cleaning;
+ if(!g){$('#gpu-memory-info').textContent='Reinicia Studio para activar la limpieza GPU.';return;}
+ $('#release-gpu-after').checked=g.enabled;
+ $('#gpu-memory-info').textContent=g.cleaning?'Liberando modelos y caché GPU…':g.warning||(!g.enabled?'Limpieza automática desactivada.':g.last_report?'Última limpieza: '+new Date(g.last_report.time*1000).toLocaleTimeString('es')+'.':'Activa antes y después de generar. El modelo puede tardar más en cargar.');
+}
+$('#release-gpu-after').onchange=async()=>{try{await api('gpu/settings',{enabled:$('#release-gpu-after').checked});await loadQueueStatus();}catch(e){toast(e.message);await loadQueueStatus();}};
+$('#release-gpu-now').onclick=async()=>{const button=$('#release-gpu-now');button.disabled=true;try{await api('gpu/release',{});await loadQueueStatus();toast('Limpieza solicitada a los motores inactivos.');}catch(e){toast(e.message);}finally{await loadQueueStatus();}};
