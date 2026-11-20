@@ -51,6 +51,6 @@ async def release_idle_backends(session, config):
         except aiohttp.ClientConnectorError:
             return {'engine':engine, 'status':'offline', 'detail':'Motor desconectado.'}
         except (aiohttp.ClientError, TimeoutError, ValueError, KeyError, TypeError) as exc:
-            return {'engine':engine, 'status':'error', 'detail':f'No se confirmó la liberación de {engine}: {exc}'}
+            return {'engine':engine, 'status':'error', 'detail':f'No se confirmó la liberación de {engine}: {str(exc) or type(exc).__name__}'}
     return {'time':time.time(), 'engines':await asyncio.gather(
         release('comfy', release_comfy), release('automatic', release_automatic))}

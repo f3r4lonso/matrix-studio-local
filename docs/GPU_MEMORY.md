@@ -23,3 +23,5 @@ Si falla la limpieza, se conserva el resultado generado y se muestra una adverte
 La actualización requiere reiniciar el servidor Python. Esta revisión queda pendiente de pruebas funcionales y de GPU; no se ejecutaron pruebas para esta modificación. Las cifras de pruebas de versiones anteriores no validan esta función nueva.
 
 Referencias de implementación: [ComfyUI, API del servidor](https://github.com/Comfy-Org/ComfyUI/blob/master/server.py), [Automatic1111, API](https://github.com/AUTOMATIC1111/stable-diffusion-webui/blob/master/modules/api/api.py).
+
+Qwen utiliza ahora un presupuesto predeterminado de 4 GiB, configurable mediante `MATRIX_STUDIO_QWEN_MAX_VRAM`. Reduce el uso previsto de VRAM mediante descarga a CPU, sin cambiar los pesos ni las semillas. Puede aumentar la latencia y no garantiza memoria suficiente cuando otras aplicaciones usan la GPU. Esta modificación no añade nuevas pruebas GPU.

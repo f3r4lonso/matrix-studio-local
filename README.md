@@ -221,3 +221,5 @@ El instalador comprueba tamaño y SHA256 antes de aceptar cada archivo. Las clav
 ## Limpieza GPU entre trabajos
 
 Se añadió **Liberar VRAM entre generaciones**, activado por defecto, y **Liberar ahora**. Studio solicita descargar modelos y caché de motores inactivos antes y después de cada trabajo. Consulta [comportamiento y límites](docs/GPU_MEMORY.md). Esta modificación está pendiente de pruebas funcionales y GPU; requiere reiniciar el servidor para activarse.
+
+Cada lote incluye **Retomar pendientes**. Reintenta el primer error antes de seguir y conserva los resultados terminados. La reanudación también reconstruye las entradas pendientes de la cola desde SQLite. Los controles de cola funcionan aunque una pestaña antigua no incluya los controles GPU nuevos.

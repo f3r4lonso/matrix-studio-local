@@ -134,8 +134,8 @@
 <aside class="settings-panel" id="settings-panel" hidden><div class="panel-title"><h2>Ajustes de creación</h2><button id="close-settings" class="icon-button" aria-label="Cerrar ajustes"><span data-icon="close"></span></button></div><p class="panel-description">Cada detalle cuenta.</p><label>Modelo<select id="model"></select></label><label>Formato<select id="size"><option value="512x512">Cuadrado · 512 × 512</option><option value="768x512">Horizontal · 768 × 512</option><option value="512x768">Vertical · 512 × 768</option><option value="1024x1024">Cuadrado HD · 1024 × 1024</option><option value="1024x576">Panorámico · 1024 × 576</option></select></label><div class="field-row"><label>Pasos<input type="number" id="steps" min="1" max="150" value="20" required></label><label>CFG<input type="number" id="cfg" min="0" max="30" step="0.1" value="7" required></label></div><label>Semilla<input type="number" id="seed" min="-1" max="2147483647" value="-1" required></label><small>Usa −1 para una imagen diferente cada vez.</small><label class="negative-label">Prompt negativo<textarea id="negative" rows="4" placeholder="Lo que prefieres evitar…"></textarea></label><div class="settings-note"><span data-icon="info"></span><p>Qwen Turbo: 8 pasos y CFG 1.<br>SDXL: prueba 20 pasos y CFG 7.<br>Más resolución requiere más memoria.</p></div></aside>
 <dialog id="image-dialog"><button class="dialog-close icon-button" id="close-image" aria-label="Cerrar imagen"><span data-icon="close"></span></button><img id="full-image" alt="Imagen generada ampliada"><div id="image-meta"></div></dialog>
 <div id="toast" class="toast" role="status" hidden></div>
-<script src="/assets/app.js?v=gpu-cleanup-1"></script>
-<script src="/assets/image-batches.js?v=1"></script>
+<script src="/assets/app.js?v=batch-resume-1"></script>
+<script src="/assets/image-batches.js?v=resume-2"></script>
 <script type="module" src="/assets/model-viewer.min.js"></script>
 </body>
 </html>

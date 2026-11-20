@@ -70,3 +70,5 @@ Ocho pruebas específicas cubren validación atómica, orden, negativos y metada
 ## Si aparece un error al importar
 
 Un HTTP 404 en `/api/image-batches` significa que la pestaña ha cargado los archivos nuevos, pero el proceso Python abierto pertenece a la versión anterior. Reinicia el servidor para registrar la API nueva. Recargar la pestaña o volver a abrir un lanzador que detecta el mismo servidor existente no recarga el backend. La interfaz distingue ahora este caso y muestra una instrucción específica en lugar del error genérico de petición.
+
+Cada lote incluye **Retomar pendientes**. Reintenta el primer error antes de seguir y conserva los resultados terminados. La reanudación también reconstruye las entradas pendientes de la cola desde SQLite. Los controles de cola funcionan aunque una pestaña antigua no incluya los controles GPU nuevos.

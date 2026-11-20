@@ -105,9 +105,10 @@ def pause_generation_queue(app):
 
 def generation_queue_state(app):
     counts = {r['status']: r['n'] for r in rows('SELECT status,count(*) AS n FROM renders GROUP BY status')}
+    failed = sum(bool(json.loads(row['params']).get('image_batch_id')) for row in rows("SELECT params FROM renders WHERE status='error'"))
     return {'paused': not app['queue_gate'].is_set(), 'stopping': app.get('stopping', False),
             'active_id': app.get('active_id'), 'queued': counts.get('queued', 0),
-            'paused_jobs': counts.get('paused', 0), 'error': app.get('queue_error', ''), 'gpu': gpu_state(app)}
+            'paused_jobs': counts.get('paused', 0), 'failed_jobs': failed, 'error': app.get('queue_error', ''), 'gpu': gpu_state(app)}
 
 
 
@@ -273,6 +274,9 @@ async def queue_resume(request):
             continue
         update(row['id'], status='queued', detail='En cola para continuar con la misma semilla')
         queue_render(app, row['id'])
+    # Recover any pending rows not present in this worker's in-memory heap.
+    for pending in rows("SELECT id FROM renders WHERE status='queued' ORDER BY rowid"):
+        queue_render(app, pending['id'])
     DB.execute("INSERT OR REPLACE INTO studio_settings (key,value) VALUES ('queue_paused','0')")
     DB.commit()
     app['stop_requested'] = None
@@ -1218,7 +1222,7 @@ async def render_qwen(app, row, p):
     args = [str(QFILES[0]), '--diffusion-model', str(QFILES[1]), '--llm', str(QFILES[2]), '--vae', str(QFILES[3]),
         '--prompt', row['prompt'], '--negative-prompt', p['negative'], '--steps', str(p['steps']), '--cfg-scale', str(p['cfg']),
         '--sampling-method', 'euler', '--width', str(p['width']), '--height', str(p['height']), '--seed', str(p['seed']),
-        '--backend', 'cuda0', '--max-vram', '6', '--mmap', '--flash-attn', 'on', '--vae-tiling', '--output', str(target)]
+        '--backend', 'cuda0', '--max-vram', os.environ.get('MATRIX_STUDIO_QWEN_MAX_VRAM', '4'), '--mmap', '--flash-attn', 'on', '--vae-tiling', '--output', str(target)]
     if p['steps'] == 8:
         args += ['--sigmas', '1.0,0.978453,0.95418,0.926626,0.89508,0.845148,0.704534,0.414568,0.0']
     with open(OUTPUT / (row['id'] + '.log'), 'w', encoding='utf-8') as log:
@@ -1236,6 +1240,9 @@ async def render_qwen(app, row, p):
                 await proc.wait()
             app['qwen_process'] = None
     if code or not target.exists():
+        log_text = (OUTPUT / (row['id'] + '.log')).read_text(encoding='utf-8', errors='replace').lower()
+        if any(message in log_text for message in ('cannot make enough memory', 'out of memory', 'workspace capacity check')):
+            raise ValueError('Qwen no dispone de suficiente VRAM. Libera memoria GPU y pulsa Retomar pendientes; se conserva esta imagen y su semilla.')
         raise ValueError(f'Qwen terminó con código {code}. Consulta outputs/{row["id"]}.log')
     return target.read_bytes()
 

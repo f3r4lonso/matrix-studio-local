@@ -1,5 +1,5 @@
 {
-  "release": "gpu-cleanup-pending-validation-2026-11-20",
+  "release": "batch-resume-recovery-2026-11-20",
   "hash_basis": "Canonical Git blobs; text is normalized to LF. Working-tree EOL may differ.",
   "files": [
     {
@@ -59,13 +59,13 @@
     },
     {
       "path": "MatrixStudio/assets/app.js",
-      "bytes": 48121,
-      "sha256": "f77e6451bc4070902d11204808cd67824f0f44e079156534146c4ee887a4d94b"
+      "bytes": 48277,
+      "sha256": "92dc203deaa57ab3d4c3095111071d077987bdd9c4bf68744066c8f0ee92c19d"
     },
     {
       "path": "MatrixStudio/assets/image-batches.js",
-      "bytes": 3887,
-      "sha256": "af3b6f038ce12bcf446e12e4c84a90320c41dd42e546bea89143d197b87ba2d5"
+      "bytes": 4472,
+      "sha256": "1f58599c00c14a19a1c5745a2898e80a9ea77ce6119c4c23514879910e7db3af"
     },
     {
       "path": "MatrixStudio/assets/lit.LICENSE",
@@ -109,8 +109,8 @@
     },
     {
       "path": "MatrixStudio/gpu_memory.py",
-      "bytes": 3140,
-      "sha256": "eca04a0814164dd9085d90022691e4af6d4e4648cc6059119400043758f6dd42"
+      "bytes": 3167,
+      "sha256": "385f4c870d7d0b99b023669a0b719534961e504ca73f3591e36fba52423d82cd"
     },
     {
       "path": "MatrixStudio/image_batches.py",
@@ -124,8 +124,8 @@
     },
     {
       "path": "MatrixStudio/index.html",
-      "bytes": 29583,
-      "sha256": "6d68a22fee4727b077c490a73f073e367d237b34415212a0a5738cbbb3e55cc9"
+      "bytes": 29591,
+      "sha256": "777a2b7b1228b69fc9488d2f6a9e1c2f0ffc02c5cf142823083c84e6a8fe682e"
     },
     {
       "path": "MatrixStudio/install_action_adapters.py",
@@ -179,8 +179,8 @@
     },
     {
       "path": "MatrixStudio/server.py",
-      "bytes": 79100,
-      "sha256": "ca9468a5f7d1d2fd6fda2e2f6b797148b7414b039d0836733579c15c6ed60006"
+      "bytes": 79899,
+      "sha256": "68b96da3b792c3eb2b1debc5bc5ed4f0dc6decd0b6f2114768bd66a8ecda6bb6"
     },
     {
       "path": "MatrixStudio/start_forge.ps1",
@@ -269,8 +269,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 16832,
-      "sha256": "2fd0217c181d9e9dead727064558f9c6a97faa1b2de25e7ea50d3fa4a6543ef1"
+      "bytes": 17138,
+      "sha256": "b040710aca29685ad564e61ce01e3eeb4d21b7d360e2842d7db9a5beae581ab2"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -294,8 +294,8 @@
     },
     {
       "path": "docs/GPU_MEMORY.md",
-      "bytes": 2871,
-      "sha256": "643900e2967d999d49b1aac30ba07a4f6293e06440d5fba96fcafd1a6dac1e37"
+      "bytes": 3228,
+      "sha256": "8e88f299f330578180c88ee729d0e9991dd6d6e1e8263b5342d566362cb754cb"
     },
     {
       "path": "docs/HARDWARE.md",
@@ -319,8 +319,8 @@
     },
     {
       "path": "docs/JSON_BATCHES.md",
-      "bytes": 5852,
-      "sha256": "20eac3da43c4ee5b682b0df6c2ff818677f93af7d6bee633c9984f1e340b49e8"
+      "bytes": 6158,
+      "sha256": "83d9ab4fdc9379026897502613ea1e3b8dc312882aae6be00149dec9455a6eff"
     },
     {
       "path": "docs/LOCAL_ASSETS.md",
