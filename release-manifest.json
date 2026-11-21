@@ -189,8 +189,8 @@
     },
     {
       "path": "MatrixStudio/server.py",
-      "bytes": 22673,
-      "sha256": "921f2d7924951e3f87671b326ea6907a914c03f4590697cf0a3c9cad1ed274be"
+      "bytes": 83229,
+      "sha256": "a856516dc5445cc2819b9004fc27550439474f8134a1e2911d183e09a7f8c7db"
     },
     {
       "path": "MatrixStudio/start_forge.ps1",
