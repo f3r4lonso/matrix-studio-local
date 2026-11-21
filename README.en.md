@@ -212,3 +212,7 @@ Every gallery card shows its recorded engine and model; missing historical metad
 ## GPU cleanup between jobs
 
 The default-on **Liberar VRAM entre generaciones** option requests model/cache release from idle backends before and after jobs. **Liberar ahora** requests manual cleanup while Studio is idle. See [behavior and limitations](docs/GPU_MEMORY.md). This change is pending functional and GPU testing; restart the server to activate it.
+
+## Albums and compact gallery
+
+Each JSON batch has a collectible album with a cover, numbered cards and placeholders for pending images. Compact cards show less information; full descriptions contain prompts, settings and actions. Large browser windows display four or five columns. See [gallery behavior](docs/GALLERY_ALBUMS.md). Visual and functional validation is pending; no tests were run for this update.

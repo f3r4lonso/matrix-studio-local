@@ -223,3 +223,7 @@ El instalador comprueba tamaño y SHA256 antes de aceptar cada archivo. Las clav
 Se añadió **Liberar VRAM entre generaciones**, activado por defecto, y **Liberar ahora**. Studio solicita descargar modelos y caché de motores inactivos antes y después de cada trabajo. Consulta [comportamiento y límites](docs/GPU_MEMORY.md). Esta modificación está pendiente de pruebas funcionales y GPU; requiere reiniciar el servidor para activarse.
 
 Cada lote incluye **Retomar pendientes**. Reintenta el primer error antes de seguir y conserva los resultados terminados. La reanudación también reconstruye las entradas pendientes de la cola desde SQLite. Los controles de cola funcionan aunque una pestaña antigua no incluya los controles GPU nuevos.
+
+## Álbumes y galería compacta
+
+Cada JSON tiene su álbum de figuritas, con portada, numeración y huecos para las pendientes. Las tarjetas muestran menos información y la descripción completa reúne prompts, parámetros y acciones. La cuadrícula se adapta hasta cuatro y cinco columnas en pantallas grandes. [Uso de la galería](docs/GALLERY_ALBUMS.md). Revisión pendiente de validación visual y funcional; no se ejecutaron pruebas para este cambio.

@@ -1,5 +1,5 @@
 {
-  "release": "batch-resume-recovery-2026-11-20",
+  "release": "gallery-collectible-albums-2026-11-21",
   "hash_basis": "Canonical Git blobs; text is normalized to LF. Working-tree EOL may differ.",
   "files": [
     {
@@ -59,13 +59,13 @@
     },
     {
       "path": "MatrixStudio/assets/app.js",
-      "bytes": 48277,
-      "sha256": "92dc203deaa57ab3d4c3095111071d077987bdd9c4bf68744066c8f0ee92c19d"
+      "bytes": 55055,
+      "sha256": "ab931f6e07e2be3f6debc93dd555d5b65fefa6aa45f22b5eb242260d452da3cb"
     },
     {
       "path": "MatrixStudio/assets/image-batches.js",
-      "bytes": 4472,
-      "sha256": "1f58599c00c14a19a1c5745a2898e80a9ea77ce6119c4c23514879910e7db3af"
+      "bytes": 4606,
+      "sha256": "e1758d866563c9a3d633495371b3dd0092f5d7fb4ec71ab5f8ec9b1ccfa0b614"
     },
     {
       "path": "MatrixStudio/assets/lit.LICENSE",
@@ -94,8 +94,8 @@
     },
     {
       "path": "MatrixStudio/assets/style.css",
-      "bytes": 23858,
-      "sha256": "5ee69eae0828c3251da5c46514b914be4a4aadc79af7437f5bb2e7c422f82417"
+      "bytes": 29443,
+      "sha256": "ba6307cca786117ec43b2e45a1ab1c18e4dab23c5b3d4d4e7d9860bec9bba8c6"
     },
     {
       "path": "MatrixStudio/assets/three.LICENSE",
@@ -124,8 +124,8 @@
     },
     {
       "path": "MatrixStudio/index.html",
-      "bytes": 29591,
-      "sha256": "777a2b7b1228b69fc9488d2f6a9e1c2f0ffc02c5cf142823083c84e6a8fe682e"
+      "bytes": 29824,
+      "sha256": "9dd57332e12119528a0d0f1caa939bae9738e877f074ce77f7e5a4c2a25f9e06"
     },
     {
       "path": "MatrixStudio/install_action_adapters.py",
@@ -264,13 +264,13 @@
     },
     {
       "path": "README.en.md",
-      "bytes": 16041,
-      "sha256": "119d557f6eb3f27877ca01ca086aee543979e1e569dedf6eae2128a1cd8658be"
+      "bytes": 16453,
+      "sha256": "5a00aa981cd79433570a2e8c7244cf5b40925d6d66fbb7bc066d28f483178473"
     },
     {
       "path": "README.md",
-      "bytes": 17138,
-      "sha256": "b040710aca29685ad564e61ce01e3eeb4d21b7d360e2842d7db9a5beae581ab2"
+      "bytes": 17596,
+      "sha256": "b4cbc717ee2da155c5362f33b179ef81616836e1b7c3ae42da0f24939fd924d8"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -291,6 +291,11 @@
       "path": "docs/FORGE.md",
       "bytes": 1905,
       "sha256": "f314d96f9f8b8239b9b15a77ee23818a6a9d9cd47a667e788051c4c77d1e343d"
+    },
+    {
+      "path": "docs/GALLERY_ALBUMS.md",
+      "bytes": 1746,
+      "sha256": "7260e38271b6f2925d30eea47d443b0f3e927cf9e82c10433e9e4cba75cc757b"
     },
     {
       "path": "docs/GPU_MEMORY.md",
