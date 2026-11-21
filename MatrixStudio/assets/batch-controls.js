@@ -1,4 +1,4 @@
-let batchControlOptions=null,batchControlRequest=0,batchLoraSelection=[],batchReference='',editingBatchId=null;
+let batchControlOptions=null,batchControlRequest=0,batchLoraSelection=[],batchReference='',editingBatchId=null,editingQueueJobId=null;
 const batchValue=id=>$('#batch-'+id).value;
 function batchOption(value,label,disabled=false){return `<option value="${esc(value)}" ${disabled?'disabled':''}>${esc(label)}</option>`;}
 function batchArchitecture(){return batchControlOptions?.models.find(m=>m.name===batchValue('model'))?.architecture||'unknown';}
@@ -83,7 +83,7 @@ $('#batch-clear-reference').onclick=()=>{batchReference='';$('#batch-file-refere
 document.addEventListener('click',async event=>{
  const button=event.target.closest('[data-edit-batch-settings]');if(!button)return;
  const b=state.galleryBatches?.find(v=>v.id===button.dataset.editBatchSettings);if(!b)return;
- editingBatchId=b.id;$('#batch-seed').disabled=true;$('#batch-negative').disabled=true;$('#batch-import').hidden=true;$('#batch-file').disabled=true;$('#batch-editing-label').textContent=`Editando pendientes de «${b.name}». Pausa la cola antes de aplicar; se conservan semillas y negativos de cada imagen.`;
+ finishQueuedImageEdit();editingBatchId=b.id;$('#batch-seed').disabled=true;$('#batch-negative').disabled=true;$('#batch-import').hidden=true;$('#batch-file').disabled=true;$('#batch-editing-label').textContent=`Editando pendientes de «${b.name}». Pausa la cola antes de aplicar; se conservan semillas y negativos de cada imagen.`;
  $('#batch-apply-pending').hidden=false;$('#batch-cancel-edit').hidden=false;
  await loadBatchControlOptions(b.settings?.engine||'comfy',b.settings||null);
  $('#batch-controls').scrollIntoView({behavior:'smooth',block:'start'});
@@ -92,6 +92,26 @@ $('#batch-apply-pending').onclick=async()=>{
  if(!editingBatchId)return;const button=$('#batch-apply-pending');button.disabled=true;
  try{const r=await api('image-batches/'+editingBatchId+'/settings',readBatchControls());toast(`Ajustes guardados en ${r.updated} pendientes. Pulsa Retomar pendientes cuando quieras continuar.`);await loadImageBatches();}catch(e){toast(e.message);}finally{button.disabled=false;}
 };
-$('#batch-cancel-edit').onclick=()=>{editingBatchId=null;$('#batch-seed').disabled=false;$('#batch-negative').disabled=false;$('#batch-import').hidden=false;$('#batch-file').disabled=false;$('#batch-editing-label').textContent='';$('#batch-apply-pending').hidden=true;$('#batch-cancel-edit').hidden=true;};
+$('#batch-cancel-edit').onclick=()=>{finishQueuedImageEdit();editingBatchId=null;$('#batch-seed').disabled=false;$('#batch-negative').disabled=false;$('#batch-import').hidden=false;$('#batch-file').disabled=false;$('#batch-editing-label').textContent='';$('#batch-apply-pending').hidden=true;$('#batch-cancel-edit').hidden=true;};
 
 if(new URLSearchParams(location.search).get('view')==='batches')setView('batches');
+
+async function editQueuedImage(job){
+ editingQueueJobId=job.id;editingBatchId=null;
+ setView('batches');
+ $('#batch-job-fields').hidden=false;$('#batch-job-title').value=job.title;$('#batch-job-prompt').value=job.prompt;
+ $('#batch-save-queue-job').hidden=false;$('#batch-back-queue').hidden=false;$('#batch-apply-pending').hidden=true;$('#batch-cancel-edit').hidden=false;
+ $('#batch-seed').disabled=false;$('#batch-negative').disabled=false;$('#batch-import').hidden=true;$('#batch-file').disabled=true;
+ $('#batch-editing-label').textContent='Editando una imagen de la cola. Los cambios afectan solo a este trabajo; la cola queda pausada.';
+ await loadBatchControlOptions(job.params.engine,job.params);
+ $('#batch-controls').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function finishQueuedImageEdit(){
+ editingQueueJobId=null;$('#batch-job-fields').hidden=true;$('#batch-save-queue-job').hidden=true;$('#batch-back-queue').hidden=true;
+}
+$('#batch-back-queue').onclick=()=>setView('queue');
+$('#batch-save-queue-job').onclick=async()=>{
+ if(!editingQueueJobId)return;const button=$('#batch-save-queue-job');button.disabled=true;
+ try{await api('queue/jobs/'+editingQueueJobId+'/edit',{title:$('#batch-job-title').value,prompt:$('#batch-job-prompt').value,params:readBatchControls()});toast('Trabajo guardado. Pulsa Continuar para seguir la cola.');await Promise.all([loadImageBatches(),loadQueueStatus()]);}
+ catch(e){toast(e.message);}finally{button.disabled=false;}
+};

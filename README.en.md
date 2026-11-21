@@ -220,3 +220,7 @@ Each JSON batch has a collectible album with a cover, numbered cards and placeho
 ## Per-batch image customization
 
 Batches have independent engine/model selectors, VAE, weighted LoRAs, dimensions, steps, CFG, sampler, scheduler, seed and negative prompt. ComfyUI and Automatic1111/Forge support a shared initial image for img2img. Controls follow adapter capabilities and filter incompatible families. Pending jobs can be edited while the queue is paused. See [controls, precedence and limitations](docs/BATCH_IMAGE_CONTROLS.md). Functional and GPU testing is pending; no tests were run for this change.
+
+## Visual queue and album filenames
+
+The visual queue groups image, video and 3D work into collapsible lists with titles and reference thumbnails. Select, cancel, restore, edit and reprioritize pending jobs; the active job has a separate cancellation control. JSON albums use the uploaded filename, with manual renaming for older albums. See [queue management](docs/QUEUE_MANAGER.md). Functional, visual and GPU validation is pending.

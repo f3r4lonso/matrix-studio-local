@@ -231,3 +231,7 @@ Cada JSON tiene su álbum de figuritas, con portada, numeración y huecos para l
 ## Personalización de imágenes por lote
 
 Los lotes tienen selectores propios de motor y modelo, VAE, varias LoRAs con intensidad, resolución, pasos, CFG, sampler, scheduler, semilla y negativo. ComfyUI y Automatic1111/Forge admiten una imagen inicial para imagen a imagen. Los controles respetan las capacidades del adaptador y filtran familias incompatibles. **Editar ajustes pendientes** permite cambiar los trabajos no terminados mientras la cola está pausada. [Controles, prioridades y límites](docs/BATCH_IMAGE_CONTROLS.md). Pendiente de pruebas funcionales y GPU; no se ejecutaron pruebas para este cambio.
+
+## Cola visual y nombres de álbum
+
+**Cola de trabajos** reúne imágenes, vídeos y 3D en listas plegables con títulos y referencias. Permite seleccionar, cancelar, volver a encolar, cambiar prioridad, subir/bajar y poner primero los pendientes. El trabajo activo se cancela por separado y no se edita ni reordena. Los lotes JSON nuevos toman el nombre del archivo; los anteriores incluyen Cambiar nombre. [Gestión de cola y edición](docs/QUEUE_MANAGER.md). Esta revisión queda pendiente de pruebas funcionales, visuales y GPU.

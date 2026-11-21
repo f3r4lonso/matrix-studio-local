@@ -17,3 +17,5 @@ Las tarjetas muestran imagen, nombre, número cuando corresponde y motor. El bot
 Los vídeos y objetos 3D mantienen su vista previa y pueden abrir su descripción desde el botón de información. La eliminación sigue siendo inmediata y conserva Deshacer.
 
 Este cambio es de interfaz y utiliza los lotes ya guardados; no requiere migrar archivos ni reiniciar los motores. Tras actualizar, recarga la pestaña con Ctrl + F5. Esta revisión no se ha probado funcional ni visualmente; se mantiene pendiente de validación por el usuario.
+
+Los álbumes importados toman el nombre del archivo JSON. Cambiar nombre permite asignarlo también a las colecciones creadas antes de guardar este dato, sin mover ni regenerar imágenes.

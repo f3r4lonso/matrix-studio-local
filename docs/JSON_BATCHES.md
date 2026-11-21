@@ -74,3 +74,5 @@ Un HTTP 404 en `/api/image-batches` significa que la pestaña ha cargado los arc
 Cada lote incluye **Retomar pendientes**. Reintenta el primer error antes de seguir y conserva los resultados terminados. La reanudación también reconstruye las entradas pendientes de la cola desde SQLite. Los controles de cola funcionan aunque una pestaña antigua no incluya los controles GPU nuevos.
 
 Los ajustes ya no dependen del panel de Crear imágenes: el lote dispone de [controles propios de modelo, VAE, LoRAs e imagen inicial](BATCH_IMAGE_CONTROLS.md). Por defecto tienen prioridad sobre settings del archivo; puedes activar Priorizar settings del JSON. También se pueden editar los pendientes mientras la cola está pausada.
+
+Los archivos nuevos incluyen su nombre al importar; el álbum y la conversación usan ese nombre sin cambiar la huella de contenido y ajustes. Las listas de lotes son desplegables y los cancelados solo se recuperan explícitamente desde Cola de trabajos. Consulta [gestión de cola](QUEUE_MANAGER.md).

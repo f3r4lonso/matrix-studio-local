@@ -5,6 +5,7 @@ import math
 import random
 import time
 import uuid
+from pathlib import Path
 from image_customization import normalize_customization, EXTRA_DEFAULTS
 
 
@@ -76,23 +77,36 @@ def normalize_batch(data):
         raise ValueError('Selecciona un modelo en Ajustes antes de importar el lote.')
     p['cfg'] = float(p['cfg'])
     p.update(normalize_customization(settings, p['engine']))
-    return {'name': name.strip(), 'prompts': items, 'settings': p}
+    result = {'name': name.strip(), 'prompts': items, 'settings': p}
+    source = outer.get('source_filename') if outer is not None else data.get('source_filename')
+    if source is not None:
+        if not isinstance(source,str) or not source.strip() or len(source)>255:
+            raise ValueError('Nombre de archivo no válido.')
+        result['source_filename'] = Path(source.replace('\\','/')).name
+    return result
 
 
 def store_batch(db, batch):
     # Omit default extensions from the identity to preserve pre-customization batch deduplication.
     identity = {**batch, 'settings':{key:value for key,value in batch['settings'].items() if key not in EXTRA_DEFAULTS or value != EXTRA_DEFAULTS[key]}}
+    identity.pop('source_filename',None)
     fingerprint = hashlib.sha256(json.dumps(identity, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     existing = db.execute('SELECT id,chat_id FROM image_batches WHERE fingerprint=?', (fingerprint,)).fetchone()
+    filename = batch.get('source_filename')
+    display_name = filename or batch['name']
     if existing:
+        if filename:
+            with db:
+                db.execute('UPDATE image_batches SET name=?,source_filename=? WHERE id=?',(filename,filename,existing['id']))
+                db.execute('UPDATE chats SET title=? WHERE id=?',(filename,existing['chat_id']))
         return {'id': existing['id'], 'chat': existing['chat_id'], 'existing': True}, []
     bid, cid, now = uuid.uuid4().hex, uuid.uuid4().hex, time.time()
     ids = []
     total = len(batch['prompts'])
     with db:
-        db.execute('INSERT INTO chats (id,title,created) VALUES (?,?,?)', (cid, batch['name'], now))
-        db.execute('INSERT INTO image_batches (id,chat_id,name,fingerprint,created) VALUES (?,?,?,?,?)',
-                   (bid, cid, batch['name'], fingerprint, now))
+        db.execute('INSERT INTO chats (id,title,created) VALUES (?,?,?)', (cid, display_name, now))
+        db.execute('INSERT INTO image_batches (id,chat_id,name,fingerprint,created,source_filename) VALUES (?,?,?,?,?,?)',
+                   (bid, cid, display_name, fingerprint, now,filename))
         for index, item in enumerate(batch['prompts'], 1):
             rid = uuid.uuid4().hex
             seed = batch['settings']['seed']
@@ -109,7 +123,7 @@ def store_batch(db, batch):
 
 
 def batch_summaries(db):
-    batches = [dict(r) for r in db.execute('SELECT id,chat_id,name,created FROM image_batches ORDER BY created DESC')]
+    batches = [dict(r) for r in db.execute('SELECT id,chat_id,name,created,source_filename FROM image_batches ORDER BY created DESC')]
     for batch in batches:
         items = []
         for row in db.execute('SELECT id,params,status,detail,image,image_deleted FROM renders WHERE chat_id=? ORDER BY rowid', (batch['chat_id'],)):
@@ -127,4 +141,6 @@ def batch_summaries(db):
         batch['items'] = items
         batch['total'] = len(items)
         batch['done'] = sum(item['status'] == 'done' for item in items)
+        batch['cancelled'] = sum(item['status'] == 'cancelled' for item in items)
+        batch['pending'] = sum(item['status'] in ('queued','paused','error') for item in items)
     return batches

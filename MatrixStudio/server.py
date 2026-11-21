@@ -24,6 +24,7 @@ from action_editing import join_action_segments
 from image_batches import normalize_batch, store_batch, batch_summaries
 from gpu_memory import release_idle_backends
 from image_customization import discover_options, validate_selection, image_workflow
+from queue_manager import install_queue_routes, interruption_values, QUEUE_ORDER
 from action_profiles import prepare_action, validate_adapters, required_adapters, preset_status, NAMES as ACTION_NAMES
 import av
 from aiohttp import web
@@ -60,6 +61,14 @@ for table, column in (('chats', 'deleted'), ('renders', 'image_deleted')):
     if column not in {row['name'] for row in DB.execute(f'PRAGMA table_info({table})')}:
         DB.execute(f'ALTER TABLE {table} ADD COLUMN {column} INTEGER NOT NULL DEFAULT 0')
 DB.commit()
+for column, declaration in (('queue_priority','INTEGER NOT NULL DEFAULT 0'),('queue_order','REAL'),('cancel_requested','INTEGER NOT NULL DEFAULT 0'),('queue_title','TEXT')):
+    if column not in {row['name'] for row in DB.execute('PRAGMA table_info(renders)')}:
+        DB.execute(f'ALTER TABLE renders ADD COLUMN {column} {declaration}')
+if 'source_filename' not in {row['name'] for row in DB.execute('PRAGMA table_info(image_batches)')}:
+    DB.execute('ALTER TABLE image_batches ADD COLUMN source_filename TEXT')
+DB.execute('UPDATE renders SET queue_order=rowid WHERE queue_order IS NULL')
+DB.execute('CREATE INDEX IF NOT EXISTS renders_queue_priority ON renders(status,queue_priority DESC,queue_order)')
+DB.commit()
 DEFAULT = {'comfy': 'http://127.0.0.1:8188', 'automatic': 'http://127.0.0.1:7860'}
 CONFIG_FILE = DATA / 'engines.json'
 CONFIG = {**DEFAULT, **(json.loads(CONFIG_FILE.read_text()) if CONFIG_FILE.exists() else {})}
@@ -90,11 +99,13 @@ class GenerationStopped(Exception):
 
 def queue_render(app, rid):
     if rid not in app['queued_ids'] and app.get('active_id') != rid:
-        found = rows('SELECT rowid AS position FROM renders WHERE id=?', (rid,))
+        found = rows('SELECT rowid AS position,queue_order,queue_priority FROM renders WHERE id=?', (rid,))
         if found:
+            r=found[0]
+            if r['queue_order'] is None:
+                DB.execute('UPDATE renders SET queue_order=rowid WHERE id=?',(rid,));DB.commit()
             app['queued_ids'].add(rid)
-            app['queue'].put_nowait((found[0]['position'], rid))
-
+            app['queue'].put_nowait(((-r['queue_priority'],r['queue_order'] if r['queue_order'] is not None else r['position'],r['position']),rid))
 
 
 def pause_generation_queue(app):
@@ -171,10 +182,10 @@ async def queue_status(request):
 
 
 async def queue_pause(request):
+    request.app['queue_control_version'] = request.app.get('queue_control_version',0)+1
     pause_generation_queue(request.app)
     request.app['queue_error'] = ''
     return web.json_response(generation_queue_state(request.app))
-
 
 
 async def backend_command(app, url, payload):
@@ -247,12 +258,13 @@ async def stop_active_generation(app):
         if task:
             await asyncio.gather(task, return_exceptions=True)
             while app.get('active_id') == rid and app.get('render_task') is task:
-                await asyncio.sleep(0)
+                await asyncio.sleep(.01)
     except Exception as exc:
         app['queue_error'] = str(exc)
         app['stop_requested'] = None
     finally:
         app['stopping'] = False
+
 
 
 
@@ -268,9 +280,14 @@ async def run_thread_safely(function, *args):
 
 async def queue_resume(request):
     app = request.app
+    data = await request.json()
+    if not isinstance(data,dict) or type(data.get('queued_only',False)) is not bool:
+        raise ValueError('queued_only debe ser booleano.')
     if app.get('stopping'):
         raise ValueError('Espera a que el motor confirme la detención antes de continuar.')
-    for row in rows("SELECT id,params,status FROM renders WHERE status IN ('paused','error') ORDER BY rowid"):
+    app['queue_control_version'] = app.get('queue_control_version',0)+1
+    for row in rows("SELECT id,params,status FROM renders WHERE status IN ('paused','error') AND cancel_requested=0 ORDER BY rowid"):
+        if data.get('queued_only'):continue
         if row['status'] == 'error' and not json.loads(row['params']).get('image_batch_id'):
             continue
         update(row['id'], status='queued', detail='En cola para continuar con la misma semilla')
@@ -288,9 +305,9 @@ async def queue_resume(request):
     return web.json_response(generation_queue_state(app))
 
 
-
 async def queue_stop(request):
     app = request.app
+    app['queue_control_version'] = app.get('queue_control_version',0)+1
     pause_generation_queue(app)
     if app.get('active_id') and not app.get('stopping'):
         app['stop_requested'] = app['active_id']
@@ -299,7 +316,6 @@ async def queue_stop(request):
         update(app['active_id'], detail='Deteniendo la generación; se conservará la cola…')
         app['stop_control_task'] = asyncio.create_task(stop_active_generation(app))
     return web.json_response(generation_queue_state(app))
-
 
 
 async def render_automatic(app, row, p):
@@ -541,6 +557,17 @@ async def change_batch_settings(request):
             DB.execute('UPDATE renders SET params=? WHERE id=?', (json.dumps(params),row['id']))
             changed += 1
     return web.json_response({'id':bid,'updated':changed})
+
+
+async def rename_image_album(request):
+    data=await request.json();name=data.get('name') if isinstance(data,dict) else None
+    if not isinstance(name,str) or not 1<=len(name.strip())<=255:raise ValueError('Nombre del álbum: entre 1 y 255 caracteres.')
+    found=rows('SELECT chat_id FROM image_batches WHERE id=?',(request.match_info['id'],))
+    if not found:raise ValueError('Álbum no encontrado.')
+    with DB:
+        DB.execute('UPDATE image_batches SET name=? WHERE id=?',(name.strip(),request.match_info['id']))
+        DB.execute('UPDATE chats SET title=? WHERE id=?',(name.strip(),found[0]['chat_id']))
+    return web.json_response({'name':name.strip()})
 
 
 async def import_image_batch(request):
@@ -1314,10 +1341,12 @@ async def worker(app):
         try:
             await app['queue_gate'].wait()
             app['queued_ids'].discard(rid)
-            found = rows('SELECT * FROM renders WHERE id=?', (rid,))
-            if not found or found[0]['status'] != 'queued':
+            # The database decides the next job even if a heap token predates a reorder.
+            found = rows("SELECT * FROM renders WHERE status='queued' AND cancel_requested=0 ORDER BY "+QUEUE_ORDER+" LIMIT 1")
+            if not found:
                 continue
             row = found[0]
+            rid = row['id']
             p = json.loads(row['params'])
             app['active_id'] = rid
             app['execution'] = None
@@ -1331,12 +1360,12 @@ async def worker(app):
             update(rid, status='done', image='/outputs/' + filename, detail={'video': 'Vídeo listo', 'mesh': 'Modelo 3D listo'}.get(p.get('kind'), 'Imagen lista'))
         except asyncio.CancelledError:
             if app.get('active_id') == rid:
-                update(rid, status='paused', detail='Generación detenida. Continuar vuelve a intentar el elemento o escena con la misma semilla.')
+                update(rid, **interruption_values(DB,rid))
             if asyncio.current_task().cancelling():
                 raise
         except Exception as exc:
             if isinstance(exc, GenerationStopped) or app.get('stop_requested') == rid:
-                update(rid, status='paused', detail='Generación detenida. Los resultados terminados se conservan; pulsa Continuar.')
+                update(rid, **interruption_values(DB,rid))
             else:
                 update(rid, status='error', detail=str(exc) or 'No se pudo conectar con el motor. Inícialo desde Motores.')
                 if p.get('image_batch_id'):
@@ -1353,6 +1382,7 @@ async def worker(app):
 
 
 async def lifecycle(app):
+    DB.execute("UPDATE renders SET status='cancelled',detail='Cancelación conservada tras reiniciar.' WHERE cancel_requested=1 AND status IN ('queued','running','paused','error')")
     recovered = rows("SELECT id FROM renders WHERE status='running'")
     DB.execute("UPDATE renders SET status='paused', detail='Generación interrumpida al cerrar el servidor. Pulsa Continuar para volver a intentarla.' WHERE status='running'")
     if recovered:
@@ -1365,6 +1395,7 @@ async def lifecycle(app):
     app['gpu_cleaning'] = False
     app['gpu_last_report'] = None
     app['gpu_warning'] = ''
+    app['queue_control_version'] = 0
     app['queue'] = asyncio.PriorityQueue()
     app['queued_ids'] = set()
     app['queue_gate'] = asyncio.Event()
@@ -1408,11 +1439,13 @@ async def index(request):
 def create_app():
     app = web.Application(middlewares=[boundary], client_max_size=21 * 1024 * 1024)
     app.cleanup_ctx.append(lifecycle)
+    install_queue_routes(app, globals())
     app.router.add_get('/', index)
     app.router.add_post('/api/gpu/settings', gpu_settings)
     app.router.add_post('/api/gpu/release', gpu_release)
     app.router.add_get('/api/image-options', image_options)
     app.router.add_post('/api/image/input', video_input)
+    app.router.add_post('/api/image-batches/{id}/name', rename_image_album)
     app.router.add_post('/api/image-batches/{id}/settings', change_batch_settings)
     app.router.add_get('/api/image-batches', list_image_batches)
     app.router.add_post('/api/image-batches', import_image_batch)
