@@ -23,9 +23,8 @@ $('#batch-import').onclick=async()=>{
  if(!selectedImageBatch)return;
  const button=$('#batch-import');button.disabled=true;
  try{
-  const [width,height]=$('#size').value.split('x').map(Number);
-  const settings={engine:$('#engine').value,model:$('#model').value,width,height,steps:Number($('#steps').value),cfg:Number($('#cfg').value),seed:Number($('#seed').value),negative:$('#negative').value,...selectedImageBatch.settings};
-  const result=await api('image-batches',{document:selectedImageBatch,settings});
+  const settings=readBatchControls();
+  const result=await api('image-batches',{document:selectedImageBatch,settings,prefer_ui_settings:!$('#batch-json-settings').checked});
   await Promise.all([loadImageBatches(),loadChats(),loadQueueStatus()]);
   toast(result.existing?'Este lote ya está guardado. Usa Continuar para retomar los pendientes.':`${result.count} imágenes guardadas en orden. La cola conserva su estado actual.`);
  }catch(e){toast(e.message);}finally{button.disabled=false;}
@@ -34,7 +33,7 @@ const batchStatusLabels={queued:'En cola',running:'Generando',paused:'Detenida',
 async function loadImageBatches(){
  try{
   const batches=await api('image-batches');state.galleryBatches=batches;
-  updateList('#image-batch-list',batches,b=>`<article class="image-batch"><div class="inspiration-heading"><h2>${esc(b.name)}</h2><span>${b.done} / ${b.total} terminadas</span></div><button class="secondary-button" data-chat="${esc(b.chat_id)}">Ver conversación</button><button type="button" class="secondary-button" data-open-album="${esc(b.id)}">Ver álbum de figuritas</button><button type="button" class="generate-button" data-resume-batch="${esc(b.id)}" ${b.done===b.total?'disabled':''}>Retomar pendientes · ${b.total-b.done} imágenes</button><ol>${b.items.map(item=>`<li><strong>${esc([item.numero_pokedex,item.name].filter(Boolean).join(' · '))}</strong><span class="batch-item-status">${esc(batchStatusLabels[item.status]||item.status)}${item.deleted?' · en papelera':''}</span>${item.status==='error'?`<p class="error">${esc(item.detail)}</p>`:''}</li>`).join('')}</ol></article>`, '<p>Aún no has importado ningún lote JSON.</p>');
+  updateList('#image-batch-list',batches,b=>`<article class="image-batch"><div class="inspiration-heading"><h2>${esc(b.name)}</h2><span>${b.done} / ${b.total} terminadas</span></div><button class="secondary-button" data-chat="${esc(b.chat_id)}">Ver conversación</button><button type="button" class="secondary-button" data-edit-batch-settings="${esc(b.id)}" ${b.done===b.total?'disabled':''}>Editar ajustes pendientes</button><button type="button" class="secondary-button" data-open-album="${esc(b.id)}">Ver álbum de figuritas</button><button type="button" class="generate-button" data-resume-batch="${esc(b.id)}" ${b.done===b.total?'disabled':''}>Retomar pendientes · ${b.total-b.done} imágenes</button><ol>${b.items.map(item=>`<li><strong>${esc([item.numero_pokedex,item.name].filter(Boolean).join(' · '))}</strong><span class="batch-item-status">${esc(batchStatusLabels[item.status]||item.status)}${item.deleted?' · en papelera':''}</span>${item.status==='error'?`<p class="error">${esc(item.detail)}</p>`:''}</li>`).join('')}</ol></article>`, '<p>Aún no has importado ningún lote JSON.</p>');
  }catch(e){$('#image-batch-list').textContent=e.message;}
 }
 setInterval(()=>{if(state.view==='batches')loadImageBatches();},3000);

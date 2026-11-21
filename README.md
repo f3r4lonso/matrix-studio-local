@@ -227,3 +227,7 @@ Cada lote incluye **Retomar pendientes**. Reintenta el primer error antes de seg
 ## Álbumes y galería compacta
 
 Cada JSON tiene su álbum de figuritas, con portada, numeración y huecos para las pendientes. Las tarjetas muestran menos información y la descripción completa reúne prompts, parámetros y acciones. La cuadrícula se adapta hasta cuatro y cinco columnas en pantallas grandes. [Uso de la galería](docs/GALLERY_ALBUMS.md). Revisión pendiente de validación visual y funcional; no se ejecutaron pruebas para este cambio.
+
+## Personalización de imágenes por lote
+
+Los lotes tienen selectores propios de motor y modelo, VAE, varias LoRAs con intensidad, resolución, pasos, CFG, sampler, scheduler, semilla y negativo. ComfyUI y Automatic1111/Forge admiten una imagen inicial para imagen a imagen. Los controles respetan las capacidades del adaptador y filtran familias incompatibles. **Editar ajustes pendientes** permite cambiar los trabajos no terminados mientras la cola está pausada. [Controles, prioridades y límites](docs/BATCH_IMAGE_CONTROLS.md). Pendiente de pruebas funcionales y GPU; no se ejecutaron pruebas para este cambio.

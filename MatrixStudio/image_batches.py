@@ -5,6 +5,7 @@ import math
 import random
 import time
 import uuid
+from image_customization import normalize_customization, EXTRA_DEFAULTS
 
 
 def normalize_batch(data):
@@ -54,7 +55,7 @@ def normalize_batch(data):
     if outer is not None:
         if not isinstance(outer.get('settings', {}), dict):
             raise ValueError('settings debe ser un objeto.')
-        settings = {**outer.get('settings', {}), **settings}
+        settings = ({**settings, **outer.get('settings', {})} if outer.get('prefer_ui_settings') else {**outer.get('settings', {}), **settings})
     p = {key: settings.get(key, default) for key, default in {
         'engine': 'comfy', 'model': '', 'negative': '', 'width': 512, 'height': 512,
         'steps': 20, 'cfg': 7, 'seed': -1}.items()}
@@ -74,11 +75,14 @@ def normalize_batch(data):
     if p['engine'] != 'qwen' and not p['model'].strip():
         raise ValueError('Selecciona un modelo en Ajustes antes de importar el lote.')
     p['cfg'] = float(p['cfg'])
+    p.update(normalize_customization(settings, p['engine']))
     return {'name': name.strip(), 'prompts': items, 'settings': p}
 
 
 def store_batch(db, batch):
-    fingerprint = hashlib.sha256(json.dumps(batch, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+    # Omit default extensions from the identity to preserve pre-customization batch deduplication.
+    identity = {**batch, 'settings':{key:value for key,value in batch['settings'].items() if key not in EXTRA_DEFAULTS or value != EXTRA_DEFAULTS[key]}}
+    fingerprint = hashlib.sha256(json.dumps(identity, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     existing = db.execute('SELECT id,chat_id FROM image_batches WHERE fingerprint=?', (fingerprint,)).fetchone()
     if existing:
         return {'id': existing['id'], 'chat': existing['chat_id'], 'existing': True}, []
@@ -115,6 +119,11 @@ def batch_summaries(db):
                               'numero': p.get('numero'), 'numero_pokedex': p.get('numero_pokedex'),
                               'status': row['status'], 'detail': row['detail'], 'image': row['image'],
                               'deleted': bool(row['image_deleted'])})
+        settings_row = db.execute("SELECT params FROM renders WHERE chat_id=? ORDER BY CASE WHEN status IN ('queued','paused','error') THEN 0 ELSE 1 END,rowid LIMIT 1", (batch['chat_id'],)).fetchone()
+        if settings_row:
+            saved = json.loads(settings_row['params'])
+            keys = ('engine','model','width','height','steps','cfg','seed','negative',*EXTRA_DEFAULTS)
+            batch['settings'] = {key:saved[key] for key in keys if key in saved}
         batch['items'] = items
         batch['total'] = len(items)
         batch['done'] = sum(item['status'] == 'done' for item in items)
