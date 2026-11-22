@@ -66,7 +66,7 @@
   </section>
   <section id="batches-view" class="view secondary-view" hidden>
     <div class="section-eyebrow">GENERACIÓN EN ORDEN</div><h1>Una imagen por prompt.</h1>
-    <p class="secondary-intro">Importa un objeto o una lista JSON con nombre, prompt y negative_prompt. El progreso se guarda y los errores pausan la cola para no saltar imágenes.</p>
+    <p class="secondary-intro">Importa una colección JSON con ID, Titulo, Descripcion y Prompt. PromptNegativo es opcional. El progreso se guarda y los errores pausan la cola para no saltar imágenes.</p>
     <div class="batch-import-panel"><h2>Importar lote</h2><p>Elige los ajustes del lote aquí. Se guardan con cada imagen y se conservan al retomar.</p>
     <div id="batch-controls" class="batch-controls">
       <div class="inspiration-heading"><h3>Motor y modelo del lote</h3><button type="button" class="secondary-button" id="batch-refresh-components">Actualizar componentes</button></div>
@@ -84,7 +84,7 @@
     <button type="button" class="secondary-button" id="batch-example">Descargar JSON de ejemplo</button>
     <label>Archivo JSON<input id="batch-file" type="file" accept=".json,application/json"></label>
     <pre id="batch-preview" aria-live="polite"></pre><button type="button" class="generate-button" id="batch-import" disabled>Guardar lote en la cola</button>
-    <p>Conserva numero y numero_pokedex y usa el negativo de cada imagen. Máximo 1000 prompts y 2 MB. Importar el mismo contenido y ajustes recupera el lote existente. Los controles Detener actual, Pausar cola y Continuar afectan a toda la cola. Continuar reintenta la imagen interrumpida con la misma semilla.</p></div>
+    <p>La descripción reúne Descripcion y las propiedades adicionales, en el orden del archivo. El prompt se mantiene separado. Máximo 1000 prompts y 2 MB. Importar el mismo contenido y ajustes recupera el lote existente. Los controles Detener actual, Pausar cola y Continuar afectan a toda la cola. Continuar reintenta la imagen interrumpida con la misma semilla.</p></div>
     <div id="image-batch-list" aria-live="polite"></div>
   </section>
   <section id="gallery-view" class="view secondary-view" hidden><div class="section-eyebrow">TU COLECCIÓN</div><h1>Tu colección, imagen a imagen.</h1><p class="secondary-intro">Álbumes de figuritas para tus JSON. Abre una imagen para ver su descripción completa.</p><div id="gallery-toolbar"></div><div id="gallery-albums" class="album-grid" hidden></div><div class="gallery gallery-collection-grid" id="gallery"></div></section>
@@ -158,8 +158,8 @@
 <dialog id="queue-edit-dialog" aria-label="Editar trabajo pendiente"><form id="queue-edit-form"><div class="panel-title"><h2>Editar pendiente</h2><button type="button" id="queue-edit-close" class="icon-button" aria-label="Cerrar">×</button></div><p id="queue-edit-model" class="video-hint"></p><p class="video-hint">La cola queda pausada mientras editas; el trabajo activo puede terminar. Si cambias un montaje con escenas guardadas se archivan y se recalcula con los nuevos ajustes.</p><label>Título<input id="queue-edit-title" maxlength="120"></label><label>Prompt<textarea id="queue-edit-prompt" rows="4" maxlength="12000" required></textarea></label><label>Negativo<textarea id="queue-edit-negative" rows="2" maxlength="12000"></textarea></label><div class="queue-edit-grid"><label>Ancho<input id="queue-edit-width" type="number" value="512"></label><label>Alto<input id="queue-edit-height" type="number" value="512"></label><label>Pasos<input id="queue-edit-steps" type="number" min="4" max="60" required></label><label>CFG<input id="queue-edit-cfg" type="number" step="0.1" min="1" max="20"></label><label>Semilla<input id="queue-edit-seed" type="number" min="0" max="2147483647" required></label><label>Fotogramas<input id="queue-edit-frames" type="number" min="4" max="121"></label><label>FPS<input id="queue-edit-fps" type="number" min="4" max="30"></label><label>Shift<input id="queue-edit-shift" type="number" min="1" max="12" step="0.1"></label><label>Transformación<input id="queue-edit-denoise" type="number" min="0.05" max="1" step="0.05"></label><label>Interpolación<input id="queue-edit-interpolation" type="number" min="1" max="3"></label><label>Caras objetivo<input id="queue-edit-faces" type="number" min="10000" max="500000" step="1000"></label><label>Duración total · 0 para un clip<input id="queue-edit-duration" type="number" min="0" max="120"></label></div><label>Guion por escenas<textarea id="queue-edit-scenes" rows="3" placeholder="Una escena por línea"></textarea></label><button type="submit" class="generate-button" id="queue-edit-save">Guardar cambios</button></form></dialog>
 <dialog id="album-name-dialog" aria-label="Nombre del álbum"><form id="album-name-form"><h2>Nombre del álbum</h2><label>Nombre del archivo o del álbum<input id="album-name-input" maxlength="255" required></label><div class="album-name-actions"><button type="button" class="secondary-button" id="album-name-close">Cerrar</button><button type="submit" class="generate-button">Guardar nombre</button></div></form></dialog>
 <div id="toast" class="toast" role="status" hidden></div>
-<script src="/assets/app.js?v=queue-manager-1"></script>
-<script src="/assets/image-batches.js?v=queue-5"></script>
+<script src="/assets/app.js?v=generic-collections-1"></script>
+<script src="/assets/image-batches.js?v=generic-6"></script>
 <script src="/assets/batch-controls.js?v=queue-3"></script>
 <script src="/assets/queue-ui.js?v=1"></script>
 <script type="module" src="/assets/model-viewer.min.js"></script>

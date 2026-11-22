@@ -216,7 +216,7 @@ El instalador comprueba tamaño y SHA256 antes de aceptar cada archivo. Las clav
 
 ## Lotes desde JSON
 
-**Lotes JSON** importa un objeto o una lista con `nombre`, `prompt` y `negative_prompt`; conserva `numero` y `numero_pokedex`. Genera una imagen por entrada en el orden del archivo y guarda el progreso. Un error pausa la cola y Continuar reintenta la imagen pendiente antes de seguir. Incluye vista previa, ejemplo descargable y protección contra importar dos veces el mismo lote. Consulta [formato y recuperación](docs/JSON_BATCHES.md).
+**Lotes JSON** importa registros genéricos con `ID`, `Titulo`, `Descripcion`, `Prompt` y `PromptNegativo` opcional. Las propiedades adicionales se incorporan a la descripción, sin alterar el prompt. Genera una imagen por entrada en el orden del archivo y guarda el progreso. Un error pausa la cola y Continuar reintenta la imagen pendiente antes de seguir. Incluye vista previa, ejemplo descargable y protección contra importar dos veces el mismo lote. Consulta [formato y recuperación](docs/JSON_BATCHES.md).
 
 ## Limpieza GPU entre trabajos
 
@@ -235,3 +235,5 @@ Los lotes tienen selectores propios de motor y modelo, VAE, varias LoRAs con int
 ## Cola visual y nombres de álbum
 
 **Cola de trabajos** reúne imágenes, vídeos y 3D en listas plegables con títulos y referencias. Permite seleccionar, cancelar, volver a encolar, cambiar prioridad, subir/bajar y poner primero los pendientes. El trabajo activo se cancela por separado y no se edita ni reordena. Los lotes JSON nuevos toman el nombre del archivo; los anteriores incluyen Cambiar nombre. [Gestión de cola y edición](docs/QUEUE_MANAGER.md). Esta revisión queda pendiente de pruebas funcionales, visuales y GPU.
+
+El ejemplo descargable ahora es una colección genérica. La descripción combina el texto base y las propiedades adicionales en su orden original; ID, título y prompts se mantienen separados. Cambio pendiente de validación, sin pruebas ejecutadas.

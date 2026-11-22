@@ -21,7 +21,7 @@ import aiohttp
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from runtime_paths import project_asset
 from action_editing import join_action_segments
-from image_batches import normalize_batch, store_batch, batch_summaries
+from image_batches import normalize_batch, store_batch, batch_summaries, migrate_collection_metadata
 from gpu_memory import release_idle_backends
 from image_customization import discover_options, validate_selection, image_workflow
 from queue_manager import install_queue_routes, interruption_values, QUEUE_ORDER
@@ -69,6 +69,7 @@ if 'source_filename' not in {row['name'] for row in DB.execute('PRAGMA table_inf
 DB.execute('UPDATE renders SET queue_order=rowid WHERE queue_order IS NULL')
 DB.execute('CREATE INDEX IF NOT EXISTS renders_queue_priority ON renders(status,queue_priority DESC,queue_order)')
 DB.commit()
+migrate_collection_metadata(DB)
 DEFAULT = {'comfy': 'http://127.0.0.1:8188', 'automatic': 'http://127.0.0.1:7860'}
 CONFIG_FILE = DATA / 'engines.json'
 CONFIG = {**DEFAULT, **(json.loads(CONFIG_FILE.read_text()) if CONFIG_FILE.exists() else {})}

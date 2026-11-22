@@ -1,78 +1,97 @@
-# Lotes de imágenes desde JSON
+# Colecciones de imágenes desde JSON
 
-En **Crear imágenes**, selecciona motor, modelo y ajustes. Abre **Lotes JSON**, carga el archivo y pulsa **Guardar lote en la cola**. La vista previa indica el orden; el panel de progreso conserva el estado de cada imagen. **Ver imágenes del lote** abre su conversación.
+En **Lotes JSON**, descarga **coleccion-ejemplo.json**, selecciona motor y ajustes, carga tu archivo y pulsa **Guardar lote en la cola**. El álbum utiliza el nombre del archivo. Se genera una imagen por entrada y se conserva el orden del documento salvo cambios explícitos de prioridad.
 
-## Formato
-
-Se acepta un objeto para una imagen o una lista para varias:
+## Formato genérico
 
 ```json
 [
   {
-    "numero": 25,
-    "numero_pokedex": "#025",
-    "nombre": "Pikachu",
-    "prompt": "A small yellow wild rodent in a forest, realistic wildlife photography",
-    "negative_prompt": "cartoon, anime, cgi, plastic, toy"
+    "ID": 1,
+    "Titulo": "Bosque al amanecer",
+    "Descripcion": "Un paisaje tranquilo.",
+    "Prompt": "A peaceful forest at sunrise, golden light, detailed landscape photography",
+    "PromptNegativo": "text, watermark, blurry",
+    "Categoria": "Paisaje",
+    "Iluminacion": "Luz cálida"
   },
   {
-    "numero": 26,
-    "numero_pokedex": "#026",
-    "nombre": "Raichu",
-    "prompt": "An orange brown wild rodent in a forest, realistic wildlife photography",
-    "negative_prompt": "cartoon, anime, cgi, plastic, toy"
+    "ID": 2,
+    "Titulo": "Ciudad junto al río",
+    "Descripcion": "Edificios reflejados en el agua.",
+    "Prompt": "A modern riverside city at blue hour, realistic architectural photography"
   }
 ]
 ```
 
-`nombre` y `name` son equivalentes. `numero` y `numero_pokedex` son opcionales y se conservan como metadatos; no reordenan la lista. Cada entrada genera exactamente una imagen, incluso si dos prompts son iguales. El negativo de cada entrada tiene prioridad sobre el negativo general; una cadena vacía lo elimina para esa imagen.
+Cada entrada del formato nuevo requiere **ID, Titulo, Descripcion y Prompt**. **PromptNegativo** es opcional.
 
-También se admite `{ "name": "Mi colección", "prompts": [...] }`, con objetos como los anteriores o cadenas de texto. Un campo `settings` opcional en ese objeto puede definir `engine`, `model`, `width`, `height`, `steps`, `cfg`, `seed` y `negative`; los campos omitidos toman los ajustes de la interfaz. La importación desde la interfaz permite hasta 1000 entradas y archivos de hasta 2 MB. Usa JSON UTF-8 válido, sin comentarios ni comas finales. El ejemplo descargable desde la app proporciona la estructura completa.
+- **ID** es el identificador visible de la imagen en la colección: entero o texto no vacío, de hasta 80 caracteres. No cambia el orden de la cola ni sustituye al identificador interno del trabajo.
+- **Titulo** contiene entre 1 y 120 caracteres.
+- **Descripcion** es texto y puede ser una cadena vacía.
+- **Prompt** contiene entre 1 y 12000 caracteres y es el texto enviado al modelo.
+- **PromptNegativo**, si se proporciona, admite hasta 12000 caracteres. Omitirlo o usar null permite el negativo general del lote. Una cadena vacía elimina el negativo para esa imagen.
 
-## Orden y recuperación
+Se aceptan mayúsculas, acentos y variantes habituales como Título, Descripción, prompt, promt, prompt_negativo, negative_prompt y Promt negativo. Los alias ambiguos con valores diferentes se rechazan antes de guardar el lote.
 
-- Se valida el lote completo antes de guardarlo: un elemento inválido no deja un lote importado a medias.
-- Se guardan todas las entradas y sus semillas en una transacción SQLite antes de empezar a generar.
-- Se utiliza la cola secuencial: otros trabajos ya encolados pueden ejecutarse antes del lote.
-- **Pausar cola** deja terminar la imagen activa y retiene las siguientes.
-- **Detener actual** pausa la cola e interrumpe el trabajo propio; **Continuar** reintenta esa imagen con sus parámetros y semilla. No recupera el paso exacto de difusión.
-- Si una imagen del lote falla, se pausa la cola. Corrige la causa y pulsa **Continuar**: esa imagen se reintenta antes que las siguientes. Las terminadas no se repiten.
-- El progreso persiste tras cerrar el navegador o reiniciar Studio. Una generación interrumpida al reiniciar requiere continuar explícitamente.
-- Importar el mismo contenido normalizado y ajustes devuelve el lote existente. Cambiar los ajustes o el contenido crea otro lote. Para recuperar un lote, utiliza su progreso guardado y los controles; no necesitas volver a importar.
+## Cómo se forma la descripción
 
-Los controles afectan a toda la cola de la instancia. Ejecuta una sola instancia por base de datos. Los límites de interrupción por motor están documentados en [QUEUE_CONTROLS.md](QUEUE_CONTROLS.md).
+La descripción visible es:
 
-La galería muestra el nombre y la posición del elemento, además de motor y modelo. Las descargas llevan un prefijo de posición y un nombre saneado; las rutas internas siguen usando identificadores únicos. Borrar voluntariamente una imagen no hace que el lote la genere de nuevo; puede recuperarse con Deshacer.
+**Descripcion + propiedad adicional 1 + propiedad adicional 2 + …**
+
+Se escribe primero el texto de Descripcion y después cada propiedad adicional como **Nombre: valor**, en el orden en que aparece en la entrada JSON. Los bloques se separan por una línea en blanco.
+
+El primer ejemplo produce:
+
+```text
+Un paisaje tranquilo.
+
+Categoria: Paisaje
+
+Iluminacion: Luz cálida
+```
+
+Las listas y los objetos anidados se conservan como JSON legible; también se representan números, booleanos y null. La descripción compuesta puede tener hasta 100000 caracteres.
+
+**Las propiedades adicionales no se añaden al prompt ni cambian los ajustes del motor.** Por ejemplo, una propiedad Material o Categoria describe la ficha; no modifica la generación. Los parámetros técnicos se eligen en el [panel del lote](BATCH_IMAGE_CONTROLS.md), o en settings del envoltorio de colección cuando se usa esa opción.
+
+Si ya existe un Titulo explícito, una propiedad adicional nombre o name se incorpora a la descripción; de igual manera, numero se conserva como propiedad adicional cuando ya existe ID. Así no se pierden datos por coincidir con alias de formatos antiguos.
+
+## Formas de documento y compatibilidad
+
+El archivo puede ser una lista, un único objeto de imagen, o un envoltorio `{ "name": "Colección", "prompts": [...] }`. El envoltorio admite settings; esas opciones pertenecen a la colección, no son propiedades de una imagen. Dentro de una imagen, cualquier propiedad ajena a sus campos principales se incorpora a la descripción, incluida una propiedad settings.
+
+Los formatos anteriores con nombre/name, numero, prompt y negative_prompt se mantienen compatibles y se normalizan al formato genérico. Si faltaban ID o descripción se utiliza la posición como ID y una descripción base vacía. Los metadatos antiguos conservados se añaden a la descripción. Las propiedades que una versión anterior descartó solo pueden recuperarse desde el archivo original.
+
+Al reimportar una coincidencia de contenido generativo y ajustes se actualizan los metadatos de descripción sin duplicar las imágenes ni repetir las terminadas. La compatibilidad con las huellas anteriores permite enriquecer registros de formatos antiguos cuando coinciden sus datos y ajustes originales.
+
+## Guardado y recuperación
+
+El archivo de la interfaz admite hasta 1000 entradas y 2 MB. Usa JSON UTF-8 válido. Se valida el documento completo antes de guardar sus trabajos en una transacción SQLite. Las semillas aleatorias se eligen una sola vez y se conservan para reintentar.
+
+**Pausar cola** deja terminar el trabajo activo. **Detener actual** interrumpe el trabajo propio y pausa los siguientes. **Retomar pendientes** reintenta los errores y continúa sin repetir resultados terminados. Los cancelados solo se recuperan mediante **Volver a encolar** en [Cola de trabajos](QUEUE_MANAGER.md). Un elemento interrumpido vuelve a empezar con sus ajustes; no se recupera el paso exacto de difusión.
+
+El progreso permanece guardado al cerrar el navegador o reiniciar Studio. Los controles afectan a la cola de la instancia. El nombre del archivo no altera la protección contra importaciones duplicadas.
 
 ## API
 
-`POST /api/image-batches` acepta el objeto/lista anterior. Para enviar ajustes comunes junto a una lista o un objeto individual:
+`POST /api/image-batches` acepta un documento o un envoltorio:
 
 ```json
 {
-  "document": [{"nombre": "Ejemplo", "prompt": "A forest", "negative_prompt": "blurry"}],
-  "settings": {"engine": "comfy", "model": "checkpoint.safetensors", "seed": 42}
+  "document": [
+    {"ID": 1, "Titulo": "Ejemplo", "Descripcion": "Una ficha de ejemplo", "Prompt": "A forest"}
+  ],
+  "source_filename": "coleccion.json",
+  "settings": {"engine": "comfy", "model": "checkpoint.safetensors"}
 }
 ```
 
-La respuesta contiene `id`, `chat`, `count` y `existing`. `GET /api/image-batches` devuelve lotes, progreso y elementos en orden. Para pausar, detener o continuar se usan las rutas de cola existentes.
+La respuesta contiene id, chat, count y existing. `GET /api/image-batches` devuelve títulos, ID de colección, descripciones compuestas, propiedades adicionales y progreso. El ID interno del trabajo se mantiene separado del ID visible de colección.
 
-Ocho pruebas aisladas cubren validación atómica, orden y nombres, deduplicación, pausa ante errores, interrupción/reintento, progreso tras reinicio, prompts repetidos, semillas guardadas y los campos del formato Pokémon. Los adaptadores GPU se sustituyen en estas pruebas; no equivalen a ocho renders reales.
+## Activación y estado de validación
 
-## API
+La actualización requiere cargar la versión nueva del servidor. La adaptación de metadatos existentes conserva imágenes, prompts, negativos, semillas y estado de cola; no regenera resultados. El ejemplo genérico está en `MatrixStudio/assets/collection-example.json` y se descarga desde la interfaz.
 
-`POST /api/image-batches` acepta `{ "document": <objeto o lista del archivo>, "settings": { "engine": "comfy", "model": "checkpoint.safetensors" } }`. También acepta directamente un objeto de lote con `prompts` y `settings`. Devuelve `id`, `chat`, `count` y `existing`. `GET /api/image-batches` devuelve el progreso y las entradas ordenadas. Importar de nuevo recupera el registro existente; no reanuda automáticamente una cola pausada.
-
-La deduplicación compara contenido normalizado, nombres, metadatos y ajustes. Cambiar cualquiera de ellos crea otro lote. Las semillas aleatorias se eligen una vez al guardar y se reutilizan al reintentar. El nombre visible y el índice se incluyen al descargar desde Studio; los archivos internos conservan identificadores seguros.
-
-Ocho pruebas específicas cubren validación atómica, orden, negativos y metadatos del formato Pokémon, prompts repetidos, importación sin duplicados, errores, detención y recuperación tras reinicio. La suite pública completa tiene 51 pruebas. Esta versión requiere reiniciar el servidor local para registrar las nuevas rutas API; actualizar solo la pestaña no recarga Python.
-
-## Si aparece un error al importar
-
-Un HTTP 404 en `/api/image-batches` significa que la pestaña ha cargado los archivos nuevos, pero el proceso Python abierto pertenece a la versión anterior. Reinicia el servidor para registrar la API nueva. Recargar la pestaña o volver a abrir un lanzador que detecta el mismo servidor existente no recarga el backend. La interfaz distingue ahora este caso y muestra una instrucción específica en lugar del error genérico de petición.
-
-Cada lote incluye **Retomar pendientes**. Reintenta el primer error antes de seguir y conserva los resultados terminados. La reanudación también reconstruye las entradas pendientes de la cola desde SQLite. Los controles de cola funcionan aunque una pestaña antigua no incluya los controles GPU nuevos.
-
-Los ajustes ya no dependen del panel de Crear imágenes: el lote dispone de [controles propios de modelo, VAE, LoRAs e imagen inicial](BATCH_IMAGE_CONTROLS.md). Por defecto tienen prioridad sobre settings del archivo; puedes activar Priorizar settings del JSON. También se pueden editar los pendientes mientras la cola está pausada.
-
-Los archivos nuevos incluyen su nombre al importar; el álbum y la conversación usan ese nombre sin cambiar la huella de contenido y ajustes. Las listas de lotes son desplegables y los cancelados solo se recuperan explícitamente desde Cola de trabajos. Consulta [gestión de cola](QUEUE_MANAGER.md).
+Esta revisión queda pendiente de pruebas funcionales, visuales y de GPU. No se ejecutaron pruebas para este cambio.

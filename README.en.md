@@ -207,7 +207,7 @@ Every gallery card shows its recorded engine and model; missing historical metad
 
 ## JSON image batches
 
-**Lotes JSON** accepts one object or an array with `nombre`, `prompt` and `negative_prompt`, preserving optional `numero` and `numero_pokedex` metadata. One image is generated per entry in file order, with persistent progress. Errors pause the queue; Continue retries the failed image before advancing. Import includes a preview, a downloadable example and deduplication of identical batches. See [format and recovery](docs/JSON_BATCHES.md).
+**Lotes JSON** accepts generic collection records with `ID`, `Titulo`, `Descripcion`, `Prompt` and optional `PromptNegativo`. Extra properties are appended to the description without changing the generation prompt. One image is generated per entry in file order, with persistent progress. Errors pause the queue; Continue retries the failed image before advancing. Import includes a preview, a downloadable example and deduplication of identical batches. See [format and recovery](docs/JSON_BATCHES.md).
 
 ## GPU cleanup between jobs
 
@@ -224,3 +224,5 @@ Batches have independent engine/model selectors, VAE, weighted LoRAs, dimensions
 ## Visual queue and album filenames
 
 The visual queue groups image, video and 3D work into collapsible lists with titles and reference thumbnails. Select, cancel, restore, edit and reprioritize pending jobs; the active job has a separate cancellation control. JSON albums use the uploaded filename, with manual renaming for older albums. See [queue management](docs/QUEUE_MANAGER.md). Functional, visual and GPU validation is pending.
+
+The downloadable example is now a generic collection. Descriptions combine base text and extra properties in their original order; IDs, titles and generation prompts remain separate. Validation is pending; no tests were run.

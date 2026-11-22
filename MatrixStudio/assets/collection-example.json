@@ -1,0 +1,31 @@
+[
+  {
+    "ID": 1,
+    "Titulo": "Bosque al amanecer",
+    "Descripcion": "Un paisaje tranquilo donde la luz atraviesa los árboles.",
+    "Prompt": "A peaceful forest at sunrise, golden sunlight filtering through tall trees, light morning mist, detailed landscape photography, natural colors",
+    "PromptNegativo": "text, watermark, blurry, low quality",
+    "Categoria": "Paisajes",
+    "Paleta": ["verde", "dorado"]
+  },
+  {
+    "ID": 2,
+    "Titulo": "Ciudad junto al río",
+    "Descripcion": "Una colección de edificios modernos reflejados en el agua.",
+    "Prompt": "A modern riverside city at blue hour, elegant architecture reflected in calm water, wide composition, realistic architectural photography",
+    "Categoria": "Arquitectura",
+    "Ubicacion": "Ciudad imaginaria"
+  },
+  {
+    "ID": 3,
+    "Titulo": "Jarrón de cerámica",
+    "Descripcion": "Una pieza artesanal fotografiada con luz de estudio suave.",
+    "Prompt": "A handmade ceramic vase on a simple wooden table, soft studio lighting, subtle surface texture, clean background, detailed product photography",
+    "PromptNegativo": "text, watermark, distorted, blurry",
+    "Material": "Cerámica",
+    "Serie": {
+      "nombre": "Objetos cotidianos",
+      "edicion": 1
+    }
+  }
+]

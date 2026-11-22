@@ -227,7 +227,13 @@ if($('#release-gpu-after'))$('#release-gpu-after').onchange=async()=>{try{await 
 if($('#release-gpu-now'))$('#release-gpu-now').onclick=async()=>{const button=$('#release-gpu-now');button.disabled=true;try{await api('gpu/release',{});await loadQueueStatus();toast('Limpieza solicitada a los motores inactivos.');}catch(e){toast(e.message);}finally{await loadQueueStatus();}};
 
 function galleryEngine(r){return {comfy:'ComfyUI',automatic:'A1111 / Forge',qwen:'Qwen'}[r.params?.engine]||r.params?.engine||'Sin motor';}
-function collectibleNumber(p){return p.numero_pokedex||((p.numero??p.batch_index)!=null?'#'+String(p.numero??p.batch_index).padStart(3,'0'):'');}
+function collectibleNumber(p){
+ const id=p.collection_id??p.numero??p.batch_index??p.index;
+ if(id==null||String(id).trim()==='')return '';
+ const value=String(id).trim();
+ return value.startsWith('#')?value:'#'+(/^\d+$/.test(value)?value.padStart(3,'0'):value);
+}
+
 function compactGalleryCard(r){
  const p=r.params||{},title=p.item_name||r.prompt?.slice(0,52)||'Sin título',number=collectibleNumber(p);
  return `<article class="gallery-item collectible-card"><div class="sticker-frame">${number?`<span class="sticker-number">${esc(number)}</span>`:''}${p.kind==='video'||p.kind==='mesh'?media(r,true):`<button type="button" class="sticker-open" data-describe-render="${esc(r.id)}" aria-label="Abrir descripción de ${esc(title)}">${media(r,true)}</button>`}</div><div class="collectible-caption"><strong title="${esc(title)}">${esc(title)}</strong><span>${esc(galleryEngine(r))}</span><button type="button" class="collectible-description" data-describe-render="${esc(r.id)}" aria-label="Ver descripción de ${esc(title)}">${icon('info')}</button></div></article>`;
@@ -266,8 +272,8 @@ function renderGalleryCollections(){
 function renderImageDescription(r){
  const p=r.params||{},title=p.item_name||({'video':'Vídeo','mesh':'Modelo 3D'}[p.kind]||'Imagen generada'),number=collectibleNumber(p);
  const album=(state.galleryBatches||[]).find(b=>b.id===p.image_batch_id);
- const fields=[['Motor',p.engine==='qwen'?'Qwen · stable-diffusion.cpp':names[p.engine]||p.engine||'No registrado'],['Modelo',p.model||'No registrado'],['VAE',p.vae||'Del modelo'],['LoRAs',p.loras?.map(l=>`${l.name} (modelo ${l.strength_model}, CLIP ${l.strength_clip})`).join(' · ')||'Sin LoRAs'],['Sampler',p.sampler||(p.engine==='qwen'?'Euler':'Predeterminado')],['Scheduler',p.scheduler||'Del flujo'],['Transformación',p.input_image?p.denoise:null],['Resolución',`${p.width} × ${p.height}`],['Pasos',p.steps],['CFG',p.cfg],['Semilla',p.seed],['Álbum',album?.name],['Posición',p.image_batch_id?`${p.batch_index} / ${p.batch_count}`:null],['Número',p.numero],['Pokédex',p.numero_pokedex],['Creada',r.created?new Date(r.created*1000).toLocaleString('es'):null]];
- return `<div class="image-description"><div class="description-eyebrow">${esc(number||'TU CREACIÓN')}</div><h2>${esc(title)}</h2><h3>Descripción · prompt</h3><p class="description-prompt">${esc(r.prompt)}</p><h3>Prompt negativo</h3><p class="description-prompt">${esc(p.negative||'Sin prompt negativo')}</p><dl class="image-facts">${fields.filter(([,value])=>value!=null).map(([key,value])=>`<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${actions(r)}<details class="description-parameters"><summary>Todos los parámetros</summary><pre>${esc(JSON.stringify(p,null,2))}</pre></details></div>`;
+ const fields=[['Motor',p.engine==='qwen'?'Qwen · stable-diffusion.cpp':names[p.engine]||p.engine||'No registrado'],['Modelo',p.model||'No registrado'],['VAE',p.vae||'Del modelo'],['LoRAs',p.loras?.map(l=>`${l.name} (modelo ${l.strength_model}, CLIP ${l.strength_clip})`).join(' · ')||'Sin LoRAs'],['Sampler',p.sampler||(p.engine==='qwen'?'Euler':'Predeterminado')],['Scheduler',p.scheduler||'Del flujo'],['Transformación',p.input_image?p.denoise:null],['Resolución',`${p.width} × ${p.height}`],['Pasos',p.steps],['CFG',p.cfg],['Semilla',p.seed],['Álbum',album?.name],['Posición',p.image_batch_id?`${p.batch_index} / ${p.batch_count}`:null],['ID en la colección',p.collection_id??p.numero??p.batch_index],['Creada',r.created?new Date(r.created*1000).toLocaleString('es'):null]];
+ return `<div class="image-description"><div class="description-eyebrow">${esc(number||'TU CREACIÓN')}</div><h2>${esc(title)}</h2><h3>Descripción</h3><p class="description-prompt">${esc(p.description||'Sin descripción añadida.')}</p><h3>Prompt</h3><p class="description-prompt">${esc(r.prompt)}</p><h3>Prompt negativo</h3><p class="description-prompt">${esc(p.negative||'Sin prompt negativo')}</p><dl class="image-facts">${fields.filter(([,value])=>value!=null).map(([key,value])=>`<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${actions(r)}<details class="description-parameters"><summary>Todos los parámetros</summary><pre>${esc(JSON.stringify(p,null,2))}</pre></details></div>`;
 }
 function openRenderDescription(r){
  if(!r)return;

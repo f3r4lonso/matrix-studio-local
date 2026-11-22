@@ -1,5 +1,5 @@
 {
-  "release": "visual-queue-and-album-filenames-2026-11-21",
+  "release": "generic-collection-records-2026-11-22",
   "hash_basis": "Canonical Git blobs; text is normalized to LF. Working-tree EOL may differ.",
   "files": [
     {
@@ -59,8 +59,8 @@
     },
     {
       "path": "MatrixStudio/assets/app.js",
-      "bytes": 56672,
-      "sha256": "3840fd92887925a3afe619f7950ad36f980b7564823570fadf94bcf077756a58"
+      "bytes": 56896,
+      "sha256": "f791f549fcbb00923a9de3fccae7691062ae78c104912d848a0e66a1669ae04f"
     },
     {
       "path": "MatrixStudio/assets/batch-controls.js",
@@ -68,9 +68,14 @@
       "sha256": "933f0ac39aa1cac10e0938645bf9208bba189c025b0d1097bf48da5d67eafdf5"
     },
     {
+      "path": "MatrixStudio/assets/collection-example.json",
+      "bytes": 1261,
+      "sha256": "d691ff0aecc50a97de5b54b3dcfa8d96fcf3b30e62415c5552cb6e7e6e374c98"
+    },
+    {
       "path": "MatrixStudio/assets/image-batches.js",
-      "bytes": 6061,
-      "sha256": "dc88b6941650e10bd399a8b4dc8748f07a4e2f629ee73cddce541049976f5333"
+      "bytes": 6013,
+      "sha256": "7bf46d672e20d4462069140512b322bf70713be0ea7509c9dd7b711f2db3473b"
     },
     {
       "path": "MatrixStudio/assets/lit.LICENSE",
@@ -113,6 +118,11 @@
       "sha256": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc"
     },
     {
+      "path": "MatrixStudio/collection_format.py",
+      "bytes": 5711,
+      "sha256": "b7babdeae8bd4311f6c9ebe614f7c54656836224350ddc9731aaa76c5933239c"
+    },
+    {
       "path": "MatrixStudio/evaluate_video.py",
       "bytes": 1948,
       "sha256": "8805abcf8db16b20724882829d47c539e4c477fb80363530378c58af576e7453"
@@ -124,8 +134,8 @@
     },
     {
       "path": "MatrixStudio/image_batches.py",
-      "bytes": 8966,
-      "sha256": "a60562baf68ab6bd431fba61f206a4c8f328f06747afab340cc733185b6387f9"
+      "bytes": 9133,
+      "sha256": "bb6681714015bc21305707ab250c401429b2e04ad8a47dec9a2b1256f2b554c7"
     },
     {
       "path": "MatrixStudio/image_customization.py",
@@ -139,8 +149,8 @@
     },
     {
       "path": "MatrixStudio/index.html",
-      "bytes": 38534,
-      "sha256": "65a3d3c2f3b76d1e5bb033af8c7e91d2afaa1de898a279ca3ecb6e21eeb61fa3"
+      "bytes": 38619,
+      "sha256": "4bd6e657a61473b1f75bc274d61b0ca8b81d388d9efadc63d3188ea657e6e9e0"
     },
     {
       "path": "MatrixStudio/install_action_adapters.py",
@@ -199,8 +209,8 @@
     },
     {
       "path": "MatrixStudio/server.py",
-      "bytes": 85760,
-      "sha256": "cb2c466171ba70e9e4e8603aaa8bbea1041d83701fd269a31111b3bca62b8f54"
+      "bytes": 85821,
+      "sha256": "5f6c437d7bb91a7f20d4b754ae3bed183385b03ba06617d2b1f6243ec5cd2f17"
     },
     {
       "path": "MatrixStudio/start_forge.ps1",
@@ -284,13 +294,13 @@
     },
     {
       "path": "README.en.md",
-      "bytes": 17413,
-      "sha256": "04d3a636f2dade51d2e918d2a7732cca34d54ea719db350e7fed90cb2553208d"
+      "bytes": 17701,
+      "sha256": "e09e5028877b9897ef712664e55bb7d3ea35b5cf9416b396e7707d3c5e0327de"
     },
     {
       "path": "README.md",
-      "bytes": 18749,
-      "sha256": "76f47143c1e838d4de13e3ec27b0953dc12d9c159a59241e3d77c8c518fb44c6"
+      "bytes": 19075,
+      "sha256": "3212a733b7588b9ef7fc096484ac2894c69d82d7a4901e07e7f4b64953670747"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -319,8 +329,8 @@
     },
     {
       "path": "docs/GALLERY_ALBUMS.md",
-      "bytes": 1935,
-      "sha256": "99d7640778d4455428cfd55ff04ce70950c7dff330ec1d850dc294c227521547"
+      "bytes": 2102,
+      "sha256": "8fd5960d39bfed941c8139cd72c625a054a378df7733e67f3939c550ff0f66ab"
     },
     {
       "path": "docs/GPU_MEMORY.md",
@@ -349,8 +359,8 @@
     },
     {
       "path": "docs/JSON_BATCHES.md",
-      "bytes": 6797,
-      "sha256": "283a045ce35f2588283be7794fa6653a8fb1975f833c4b0aefae722258cd69bd"
+      "bytes": 6072,
+      "sha256": "f29454dfe9af6a8850a38d3555f4ef2e395993a6d2f0c7387e2aa0bc6751a3aa"
     },
     {
       "path": "docs/LOCAL_ASSETS.md",

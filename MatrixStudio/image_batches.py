@@ -7,6 +7,7 @@ import time
 import uuid
 from pathlib import Path
 from image_customization import normalize_customization, EXTRA_DEFAULTS
+from collection_format import parse_record, canonical_key, normalized_key, migrate_collection_metadata
 
 
 def normalize_batch(data):
@@ -15,8 +16,12 @@ def normalize_batch(data):
         data = outer['document']
     if isinstance(data, list):
         data = {'name': 'Lote JSON', 'prompts': data}
-    elif isinstance(data, dict) and 'prompt' in data:
-        data = {'name': data.get('nombre', data.get('name', 'Lote JSON')), 'prompts': [data], 'settings': data.get('settings', {})}
+    elif isinstance(data,dict) and any(canonical_key(key)=='prompt' for key in data):
+        record=data
+        modern=any(normalized_key(key) in ('id','titulo','title') for key in record)
+        old_name=record.get('nombre',record.get('name','Lote JSON'))
+        internal_name='Lote JSON' if modern or not isinstance(old_name,str) else old_name
+        data={'name':internal_name,'prompts':[record],'settings':{}}
     if not isinstance(data, dict):
         raise ValueError('El JSON debe contener una imagen, una lista de imágenes o un objeto con prompts.')
     name = data.get('name', data.get('nombre', 'Lote JSON'))
@@ -25,31 +30,10 @@ def normalize_batch(data):
     entries = data.get('prompts')
     if not isinstance(entries, list) or not 1 <= len(entries) <= 1000:
         raise ValueError('Incluye entre 1 y 1000 elementos en prompts.')
-    items = []
-    for index, entry in enumerate(entries, 1):
-        if isinstance(entry, str):
-            entry = {'name': f'Imagen {index}', 'prompt': entry}
-        if not isinstance(entry, dict):
-            raise ValueError(f'Elemento {index}: se esperaba un nombre y un prompt.')
-        title = entry.get('name', entry.get('nombre', f'Imagen {index}'))
-        prompt = entry.get('prompt')
-        if not isinstance(title, str) or not 1 <= len(title.strip()) <= 120:
-            raise ValueError(f'Elemento {index}: nombre vacío o demasiado largo.')
-        if not isinstance(prompt, str) or not 1 <= len(prompt.strip()) <= 12000:
-            raise ValueError(f'Elemento {index}: prompt de entre 1 y 12000 caracteres requerido.')
-        item = {'name': title.strip(), 'prompt': prompt.strip()}
-        if 'negative_prompt' in entry or 'negative' in entry:
-            negative = entry.get('negative_prompt', entry.get('negative'))
-            if not isinstance(negative, str) or len(negative) > 12000:
-                raise ValueError(f'Elemento {index}: negative_prompt debe ser texto de hasta 12000 caracteres.')
-            item['negative'] = negative
-        for key in ('numero', 'numero_pokedex'):
-            if key in entry:
-                value = entry[key]
-                if type(value) not in (str, int) or len(str(value)) > 40:
-                    raise ValueError(f'Elemento {index}: {key} debe ser texto o entero de hasta 40 caracteres.')
-                item[key] = value
-        items.append(item)
+    items,legacy_items = [],[]
+    for index, entry in enumerate(entries,1):
+        item,legacy = parse_record(entry,index)
+        items.append(item);legacy_items.append(legacy)
     settings = data.get('settings', {})
     if not isinstance(settings, dict):
         raise ValueError('settings debe ser un objeto.')
@@ -78,6 +62,7 @@ def normalize_batch(data):
     p['cfg'] = float(p['cfg'])
     p.update(normalize_customization(settings, p['engine']))
     result = {'name': name.strip(), 'prompts': items, 'settings': p}
+    if all(item is not None for item in legacy_items):result['_legacy_prompts']=legacy_items
     source = outer.get('source_filename') if outer is not None else data.get('source_filename')
     if source is not None:
         if not isinstance(source,str) or not source.strip() or len(source)>255:
@@ -87,19 +72,28 @@ def normalize_batch(data):
 
 
 def store_batch(db, batch):
-    # Omit default extensions from the identity to preserve pre-customization batch deduplication.
-    identity = {**batch, 'settings':{key:value for key,value in batch['settings'].items() if key not in EXTRA_DEFAULTS or value != EXTRA_DEFAULTS[key]}}
-    identity.pop('source_filename',None)
-    fingerprint = hashlib.sha256(json.dumps(identity, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
-    existing = db.execute('SELECT id,chat_id FROM image_batches WHERE fingerprint=?', (fingerprint,)).fetchone()
+    settings = {key:value for key,value in batch['settings'].items() if key not in EXTRA_DEFAULTS or value != EXTRA_DEFAULTS[key]}
+    generation_items = [{key:item[key] for key in ('name','prompt','collection_id','negative') if key in item} for item in batch['prompts']]
+    identity = {'name':batch['name'],'prompts':generation_items,'settings':settings}
+    fingerprint = hashlib.sha256(json.dumps(identity,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
+    existing = db.execute('SELECT id,chat_id FROM image_batches WHERE fingerprint=?',(fingerprint,)).fetchone()
+    if existing is None and batch.get('_legacy_prompts') is not None:
+        legacy_identity={'name':batch['name'],'prompts':batch['_legacy_prompts'],'settings':settings}
+        legacy_hash=hashlib.sha256(json.dumps(legacy_identity,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
+        existing=db.execute('SELECT id,chat_id FROM image_batches WHERE fingerprint=?',(legacy_hash,)).fetchone()
     filename = batch.get('source_filename')
     display_name = filename or batch['name']
     if existing:
-        if filename:
-            with db:
+        with db:
+            if filename:
                 db.execute('UPDATE image_batches SET name=?,source_filename=? WHERE id=?',(filename,filename,existing['id']))
                 db.execute('UPDATE chats SET title=? WHERE id=?',(filename,existing['chat_id']))
-        return {'id': existing['id'], 'chat': existing['chat_id'], 'existing': True}, []
+            saved=db.execute('SELECT id,params FROM renders WHERE chat_id=? ORDER BY rowid',(existing['chat_id'],)).fetchall()
+            for row,item in zip(saved,batch['prompts']):
+                params=json.loads(row['params'])
+                params.update({key:item[key] for key in ('collection_id','description_base','description','extra_properties')})
+                db.execute('UPDATE renders SET params=? WHERE id=?',(json.dumps(params,ensure_ascii=False),row['id']))
+        return {'id':existing['id'],'chat':existing['chat_id'],'existing':True},[]
     bid, cid, now = uuid.uuid4().hex, uuid.uuid4().hex, time.time()
     ids = []
     total = len(batch['prompts'])
@@ -114,7 +108,7 @@ def store_batch(db, batch):
             params = {**batch['settings'], 'seed': seed, 'image_batch_id': bid,
                       'item_name': item['name'], 'batch_index': index, 'batch_count': total,
                       'negative': item.get('negative', batch['settings']['negative'])}
-            params.update({key: item[key] for key in ('numero', 'numero_pokedex') if key in item})
+            params.update({key:item[key] for key in ('collection_id','description_base','description','extra_properties')})
             db.execute('INSERT INTO renders (id,chat_id,prompt,params,status,detail,image,created) VALUES (?,?,?,?,?,?,?,?)',
                        (rid, cid, item['prompt'], json.dumps(params), 'queued',
                         f'En cola · {index}/{total} · {item["name"]}', None, now))
@@ -130,7 +124,8 @@ def batch_summaries(db):
             p = json.loads(row['params'])
             if p.get('image_batch_id') == batch['id']:
                 items.append({'id': row['id'], 'name': p['item_name'], 'index': p['batch_index'],
-                              'numero': p.get('numero'), 'numero_pokedex': p.get('numero_pokedex'),
+                              'collection_id':p.get('collection_id',p.get('numero',p['batch_index'])),
+                              'description':p.get('description',''),'extra_properties':p.get('extra_properties',{}),
                               'status': row['status'], 'detail': row['detail'], 'image': row['image'],
                               'deleted': bool(row['image_deleted'])})
         settings_row = db.execute("SELECT params FROM renders WHERE chat_id=? ORDER BY CASE WHEN status IN ('queued','paused','error') THEN 0 ELSE 1 END,rowid LIMIT 1", (batch['chat_id'],)).fetchone()
